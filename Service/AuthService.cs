@@ -28,4 +28,18 @@ public class AuthService(Supabase.Client supabase)
         return supabase.Auth.CurrentUser ?? throw new Exception("niezalogowany");
     }
 
+    public async Task CreatePassword(PasswordEntry passwordEntry)
+    {
+        if (supabase.Auth.CurrentSession is null)
+        {
+            throw new Exception("niezalogowany");
+        }
+        var options = new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
+        string json = JsonSerializer.Serialize(passwordEntry, options);
+        Password password = new()
+        {
+            Content = json
+        };
+        await supabase.From<Password>().Insert(password);
+    }
 }
