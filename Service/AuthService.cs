@@ -25,7 +25,7 @@ public class AuthService(Supabase.Client supabase)
 
     public User? GetCurrentUser()
     {
-        return supabase.Auth.CurrentUser;
+        return supabase.Auth.CurrentUser ?? throw new Exception("niezalogowany");
     }
 
 }
