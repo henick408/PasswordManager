@@ -1,10 +1,7 @@
-using System.Buffers.Text;
-using System.Runtime.Intrinsics.Arm;
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using PasswordManager.Dto;
+using PasswordManager.Model;
 using Supabase.Gotrue;
 
 namespace PasswordManager.Service;
@@ -27,5 +24,4 @@ public class AuthService(Supabase.Client supabase)
     {
         return supabase.Auth.CurrentUser ?? throw new Exception("niezalogowany");
     }
-
 }
