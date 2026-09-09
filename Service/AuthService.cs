@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using PasswordManager.Dto;
@@ -6,7 +8,7 @@ using Supabase.Gotrue;
 
 namespace PasswordManager.Service;
 
-public class AuthService(Supabase.Client supabase)
+public class AuthService(Supabase.Client supabase, UserSession userSession)
 {
     public async Task<Session?> SignUp(UserRequest request)
     {
@@ -17,7 +19,14 @@ public class AuthService(Supabase.Client supabase)
     public async Task<Session?> SignIn(UserRequest request)
     {
         Session? session = await supabase.Auth.SignIn(request.Email, request.Password);
+        byte[] credentials = Encoding.UTF8.GetBytes(request.Email + request.Password);
+        userSession.EncryptionHash = SHA256.HashData(credentials);
         return session;
+    }
+
+    public Task SignOut()
+    {
+        return supabase.Auth.SignOut();
     }
 
     public User? GetCurrentUser()
