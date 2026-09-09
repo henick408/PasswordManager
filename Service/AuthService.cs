@@ -1,7 +1,5 @@
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Encodings.Web;
-using System.Text.Json;
 using PasswordManager.Dto;
 using PasswordManager.Model;
 using Supabase.Gotrue;
