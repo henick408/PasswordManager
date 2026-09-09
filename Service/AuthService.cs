@@ -17,8 +17,7 @@ public class AuthService(Supabase.Client supabase, UserSession userSession)
     public async Task<Session?> SignIn(UserRequest request)
     {
         Session? session = await supabase.Auth.SignIn(request.Email, request.Password);
-        byte[] credentials = Encoding.UTF8.GetBytes(request.Email + request.Password);
-        userSession.EncryptionHash = SHA256.HashData(credentials);
+        userSession.EncryptionHash = HashCredentials(request);
         return session;
     }
 
@@ -30,5 +29,26 @@ public class AuthService(Supabase.Client supabase, UserSession userSession)
     public User? GetCurrentUser()
     {
         return supabase.Auth.CurrentUser ?? throw new Exception("niezalogowany");
+    }
+
+    private byte[] HashCredentials(UserRequest request)
+    {
+        StringBuilder transformedEmail = new(request.Email.Length);
+        for (int i = 0; i < request.Email.Length; i++)
+        {
+            transformedEmail.Append(ShiftChar(request.Email[i], i));
+        }
+        StringBuilder transformedPassword = new(request.Password.Length);
+        for (int i = 0; i < request.Password.Length; i++)
+        {
+            transformedPassword.Append(ShiftChar(request.Password[i], i));
+        }
+        string transformedCredentials = $"{transformedEmail.Length}:{transformedEmail}{transformedPassword.Length}:{transformedPassword}";
+        return SHA256.HashData(Encoding.UTF8.GetBytes(transformedCredentials));
+    }
+
+    private char ShiftChar(char character, int position)
+    {
+        return (char)(33 + (character - 33 + position) % 93);
     }
 }
