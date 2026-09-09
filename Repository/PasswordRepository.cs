@@ -7,17 +7,15 @@ namespace PasswordManager.Repository;
 
 public class PasswordRepository(Supabase.Client supabase)
 {
-    public async Task CreatePassword(PasswordEntry passwordEntry)
+    public async Task InsertPassword(string encryptedPassword)
     {
         if (supabase.Auth.CurrentSession is null)
         {
             throw new Exception("niezalogowany");
         }
-        var options = new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
-        string json = JsonSerializer.Serialize(passwordEntry, options);
         Password password = new()
         {
-            Content = json
+            Content = encryptedPassword
         };
         await supabase.From<Password>().Insert(password);
     }

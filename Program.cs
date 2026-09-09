@@ -20,5 +20,7 @@ public static class Program
         ServiceProvider serviceProvider = services.BuildServiceProvider();
         AuthService authService = serviceProvider.GetRequiredService<AuthService>();
         PasswordRepository passwordRepository = serviceProvider.GetRequiredService<PasswordRepository>();
+        EncryptionService encryptionService = serviceProvider.GetRequiredService<EncryptionService>();
+        PasswordService passwordService = serviceProvider.GetRequiredService<PasswordService>();
     }
 }
