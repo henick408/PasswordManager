@@ -22,7 +22,7 @@ public class PasswordRepository(Supabase.Client supabase)
         await supabase.From<Password>().Insert(password);
     }
 
-    public async Task<IList<PasswordEntry>> GetPasswords()
+    public async Task<IList<string>> ListPasswords()
     {
         if (supabase.Auth.CurrentSession is null)
         {
@@ -30,10 +30,7 @@ public class PasswordRepository(Supabase.Client supabase)
         }
         IList<Password> passwords = (await supabase.From<Password>().Get()).Models;
 
-        var options = new JsonSerializerOptions { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
-        IList<PasswordEntry> passwordEntries = passwords
-                                        .Select(password => JsonSerializer.Deserialize<PasswordEntry>(password.Content, options)!)
-                                        .ToList();
-        return passwordEntries;
+        IList<string> encryptedPasswords = passwords.Select(password => password.Content).ToList();
+        return encryptedPasswords;
     }
 }
