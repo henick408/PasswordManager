@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using PasswordManager.Repository;
 using PasswordManager.Service;
 
 namespace PasswordManager.Config;
@@ -26,5 +27,10 @@ public static class ServiceExtensions
     public static void AddServices(this IServiceCollection services)
     {
         services.AddTransient<AuthService>();
+    }
+
+    public static void AddRepositories(this IServiceCollection services)
+    {
+        services.AddTransient<PasswordRepository>();
     }
 }
