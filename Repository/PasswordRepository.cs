@@ -1,6 +1,3 @@
-using System.Text.Encodings.Web;
-using System.Text.Json;
-using PasswordManager.Dto;
 using PasswordManager.Model;
 
 namespace PasswordManager.Repository;
@@ -20,7 +17,7 @@ public class PasswordRepository(Supabase.Client supabase)
         await supabase.From<Password>().Insert(password);
     }
 
-    public async Task<IList<string>> ListPasswords()
+    public async Task<IList<Password>> ListPasswords()
     {
         if (supabase.Auth.CurrentSession is null)
         {
@@ -28,7 +25,6 @@ public class PasswordRepository(Supabase.Client supabase)
         }
         IList<Password> passwords = (await supabase.From<Password>().Get()).Models;
 
-        IList<string> encryptedPasswords = passwords.Select(password => password.Content).ToList();
-        return encryptedPasswords;
+        return passwords;
     }
 }

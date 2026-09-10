@@ -8,16 +8,26 @@ namespace PasswordManager.Service;
 
 public class PasswordService(PasswordRepository passwordRepository, EncryptionService encryptionService)
 {
-    private readonly JsonSerializerOptions jsonSerializerOptions = new () { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
+    private readonly JsonSerializerOptions jsonSerializerOptions = new() { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
 
     public async Task<IList<PasswordEntry>> GetPasswords()
     {
-        IList<string> encryptedPasswords = await passwordRepository.ListPasswords();
-        IList<string> decryptedPasswords = encryptedPasswords.Select(encryptionService.Decrypt).ToList();
-
+        IList<Password> encryptedPasswords = await passwordRepository.ListPasswords();
+        IList<Password> decryptedPasswords = encryptedPasswords
+            .Select(password => new Password
+            {
+                Id = password.Id,
+                Content = encryptionService.Decrypt(password.Content)
+            })
+            .ToList();
         IList<PasswordEntry> passwordEntries = decryptedPasswords
-                                        .Select(password => JsonSerializer.Deserialize<PasswordEntry>(password, jsonSerializerOptions)!)
-                                        .ToList();
+            .Select(password =>
+            {
+                PasswordEntry passwordEntry = JsonSerializer.Deserialize<PasswordEntry>(password.Content, jsonSerializerOptions)!;
+                passwordEntry.Id = password.Id;
+                return passwordEntry;
+            })
+            .ToList();
         return passwordEntries;
     }
 
