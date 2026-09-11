@@ -38,7 +38,9 @@ public class EncryptionService
         return new EncryptedPassword
         {
             Id = decryptedPassword.Id,
-            Content = $"{nonceBase64}:{tagBase64}:{cipherTextBase64}"
+            Content = cipherTextBase64,
+            Nonce = nonceBase64,
+            Tag = tagBase64
         };
     }
 
@@ -46,18 +48,10 @@ public class EncryptionService
     {
         EnsureThatLoggedIn();
         byte[] key = session.EncryptionHash!;
-        IList<string> cipherDataBase64 = encryptedPassword.Content.Split(':');
-        if (cipherDataBase64.Count != 3)
-        {
-            throw new Exception("Data is not correct");
-        }
-        IList<byte[]> cipherData = cipherDataBase64
-            .Select(Convert.FromBase64String)
-            .ToList();
+        byte[] cipherText = Convert.FromBase64String(encryptedPassword.Content);
+        byte[] nonce = Convert.FromBase64String(encryptedPassword.Nonce);
+        byte[] tag = Convert.FromBase64String(encryptedPassword.Tag);
 
-        byte[] nonce = cipherData[0];
-        byte[] tag = cipherData[1];
-        byte[] cipherText = cipherData[2];
         byte[] plainText = new byte[cipherText.Length];
 
         using (AesGcm aes = new(key, tag.Length))

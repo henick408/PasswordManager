@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace PasswordManager.Dto;
 
-public record PasswordEntry
+public class PasswordEntry
 {
     [JsonIgnore]
     public long Id { get; set; }
