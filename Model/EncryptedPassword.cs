@@ -4,7 +4,7 @@ using Supabase.Postgrest.Models;
 namespace PasswordManager.Model;
 
 [Table("password")]
-public class Password : BaseModel
+public class EncryptedPassword : BaseModel
 {
     [PrimaryKey("id")]
     public long Id { get; set; }

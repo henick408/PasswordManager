@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using PasswordManager.Dto;
 using PasswordManager.Model;
 
 namespace PasswordManager.Service;
@@ -14,11 +15,12 @@ public class EncryptionService
         this.session = session;
     }
 
-    public string Encrypt(string plainTextString)
+    public EncryptedPassword Encrypt(PasswordEntry decryptedPassword)
     {
         EnsureThatLoggedIn();
+        Console.WriteLine(Convert.ToBase64String(session.EncryptionHash!));
         byte[] key = session.EncryptionHash!;
-        byte[] plainText = Encoding.UTF8.GetBytes(plainTextString);
+        byte[] plainText = Encoding.UTF8.GetBytes(decryptedPassword.ToString());
         byte[] cipherText = new byte[plainText.Length];
 
         byte[] nonce = new byte[12];
@@ -33,14 +35,18 @@ public class EncryptionService
         string nonceBase64 = Convert.ToBase64String(nonce);
         string tagBase64 = Convert.ToBase64String(tag);
         string cipherTextBase64 = Convert.ToBase64String(cipherText);
-        return $"{nonceBase64}:{tagBase64}:{cipherTextBase64}";
+        return new EncryptedPassword
+        {
+            Id = decryptedPassword.Id,
+            Content = $"{nonceBase64}:{tagBase64}:{cipherTextBase64}"
+        };
     }
 
-    public string Decrypt(string cipherTextString)
+    public PasswordEntry Decrypt(EncryptedPassword encryptedPassword)
     {
         EnsureThatLoggedIn();
         byte[] key = session.EncryptionHash!;
-        IList<string> cipherDataBase64 = cipherTextString.Split(':');
+        IList<string> cipherDataBase64 = encryptedPassword.Content.Split(':');
         if (cipherDataBase64.Count != 3)
         {
             throw new Exception("Data is not correct");
@@ -58,8 +64,12 @@ public class EncryptionService
         {
             aes.Decrypt(nonce, cipherText, tag, plainText);
         }
+        string json = Encoding.UTF8.GetString(plainText);
 
-        return Encoding.UTF8.GetString(plainText);
+        PasswordEntry decryptedPassword = PasswordEntry.FromJson(json);
+        decryptedPassword.Id = encryptedPassword.Id;
+
+        return decryptedPassword;
     }
 
     private void EnsureThatLoggedIn()

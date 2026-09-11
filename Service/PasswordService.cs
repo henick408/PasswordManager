@@ -8,51 +8,35 @@ namespace PasswordManager.Service;
 
 public class PasswordService(PasswordRepository passwordRepository, EncryptionService encryptionService)
 {
-    private readonly JsonSerializerOptions jsonSerializerOptions = new() { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
-
     public async Task<IList<PasswordEntry>> GetPasswords()
     {
-        IList<Password> encryptedPasswords = await passwordRepository.ListPasswords();
-        IList<Password> decryptedPasswords = encryptedPasswords
-            .Select(password => new Password
-            {
-                Id = password.Id,
-                Content = encryptionService.Decrypt(password.Content)
-            })
+        IList<EncryptedPassword> encryptedPasswords = await passwordRepository.ListPasswords();
+        return encryptedPasswords
+            .Select(encryptionService.Decrypt)
             .ToList();
-        IList<PasswordEntry> passwordEntries = decryptedPasswords
-            .Select(password =>
-            {
-                PasswordEntry passwordEntry = JsonSerializer.Deserialize<PasswordEntry>(password.Content, jsonSerializerOptions)!;
-                passwordEntry.Id = password.Id;
-                return passwordEntry;
-            })
-            .ToList();
-        return passwordEntries;
+    }
+
+    public async Task<PasswordEntry> GetPassword(long id)
+    {
+        EncryptedPassword encryptedPassword = await passwordRepository.GetPassword(id)
+            ?? throw new Exception("Password z takim id nie istnieje");
+        return encryptionService.Decrypt(encryptedPassword);
     }
 
     public async Task CreatePassword(PasswordEntry passwordEntry)
     {
-        string jsonPassword = JsonSerializer.Serialize(passwordEntry, jsonSerializerOptions);
-        string encryptedContent = encryptionService.Encrypt(jsonPassword);
-        Password encryptedPassword = new()
-        {
-            Content = encryptedContent
-        };
-
+        EncryptedPassword encryptedPassword = encryptionService.Encrypt(passwordEntry);
         await passwordRepository.InsertPassword(encryptedPassword);
     }
 
-   public async Task UpdatePassword(PasswordEntry passwordEntry)
+    public async Task UpdatePassword(PasswordEntry passwordEntry)
     {
-        string jsonPassword = JsonSerializer.Serialize(passwordEntry, jsonSerializerOptions);
-        string encryptedContent = encryptionService.Encrypt(jsonPassword);
-        Password encryptedPassword = new()
-        {
-            Id = passwordEntry.Id!.Value,
-            Content = encryptedContent
-        };
-
+        EncryptedPassword encryptedPassword = encryptionService.Encrypt(passwordEntry);
         await passwordRepository.UpdatePassword(encryptedPassword);
+    }
+
+    public Task DeletePassword(PasswordEntry passwordEntry)
+    {
+        return passwordRepository.DeletePassword(passwordEntry.Id);
     }
 }
