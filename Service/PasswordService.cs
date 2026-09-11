@@ -3,6 +3,7 @@ using System.Text.Json;
 using PasswordManager.Dto;
 using PasswordManager.Repository;
 using PasswordManager.Model;
+using PasswordManager.CustomExceptions;
 
 namespace PasswordManager.Service;
 
@@ -19,7 +20,7 @@ public class PasswordService(PasswordRepository passwordRepository, EncryptionSe
     public async Task<PasswordEntry> GetPassword(long id)
     {
         EncryptedPassword encryptedPassword = await passwordRepository.GetPassword(id)
-            ?? throw new Exception("Password z takim id nie istnieje");
+            ?? throw new PasswordNotFoundException(id);
         return encryptionService.Decrypt(encryptedPassword);
     }
 

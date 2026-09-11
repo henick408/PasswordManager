@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using PasswordManager.CustomExceptions;
 using PasswordManager.Dto;
 using PasswordManager.Model;
 using Supabase.Gotrue;
@@ -28,7 +29,7 @@ public class AuthService(Supabase.Client supabase, UserSession userSession)
 
     public User? GetCurrentUser()
     {
-        return supabase.Auth.CurrentUser ?? throw new Exception("niezalogowany");
+        return supabase.Auth.CurrentUser ?? throw new UnauthenticatedUserException();
     }
 
     private byte[] HashCredentials(UserRequest request)

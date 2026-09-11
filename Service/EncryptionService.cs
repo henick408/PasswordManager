@@ -1,5 +1,7 @@
+using System.Net.NetworkInformation;
 using System.Security.Cryptography;
 using System.Text;
+using PasswordManager.CustomExceptions;
 using PasswordManager.Dto;
 using PasswordManager.Model;
 
@@ -70,7 +72,7 @@ public class EncryptionService
     {
         if (session.EncryptionHash is null)
         {
-            throw new Exception("Niezalogowany");
+            throw new UnauthenticatedUserException();
         }
     }
 }
