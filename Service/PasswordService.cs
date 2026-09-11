@@ -34,8 +34,25 @@ public class PasswordService(PasswordRepository passwordRepository, EncryptionSe
     public async Task CreatePassword(PasswordEntry passwordEntry)
     {
         string jsonPassword = JsonSerializer.Serialize(passwordEntry, jsonSerializerOptions);
-        string encryptedPassword = encryptionService.Encrypt(jsonPassword);
+        string encryptedContent = encryptionService.Encrypt(jsonPassword);
+        Password encryptedPassword = new()
+        {
+            Content = encryptedContent
+        };
 
         await passwordRepository.InsertPassword(encryptedPassword);
+    }
+
+   public async Task UpdatePassword(PasswordEntry passwordEntry)
+    {
+        string jsonPassword = JsonSerializer.Serialize(passwordEntry, jsonSerializerOptions);
+        string encryptedContent = encryptionService.Encrypt(jsonPassword);
+        Password encryptedPassword = new()
+        {
+            Id = passwordEntry.Id!.Value,
+            Content = encryptedContent
+        };
+
+        await passwordRepository.UpdatePassword(encryptedPassword);
     }
 }
