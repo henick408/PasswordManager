@@ -1,11 +1,10 @@
-using System.Net.NetworkInformation;
 using System.Security.Cryptography;
 using System.Text;
-using PasswordManager.CustomExceptions;
-using PasswordManager.Dto;
-using PasswordManager.Model;
+using PasswordManager.Core.CustomExceptions;
+using PasswordManager.Core.Dto;
+using PasswordManager.Core.Model;
 
-namespace PasswordManager.Service;
+namespace PasswordManager.Core.Service;
 
 public class EncryptionService
 {

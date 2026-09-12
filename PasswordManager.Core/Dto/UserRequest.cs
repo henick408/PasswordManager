@@ -1,4 +1,4 @@
-namespace PasswordManager.Dto;
+namespace PasswordManager.Core.Dto;
 
 public class UserRequest
 {

@@ -1,4 +1,4 @@
-namespace PasswordManager.Model;
+namespace PasswordManager.Core.Model;
 
 public class UserSession
 {

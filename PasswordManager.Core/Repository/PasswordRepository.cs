@@ -1,8 +1,7 @@
-using PasswordManager.CustomExceptions;
-using PasswordManager.Dto;
-using PasswordManager.Model;
+using PasswordManager.Core.Model;
+using PasswordManager.Core.CustomExceptions;
 
-namespace PasswordManager.Repository;
+namespace PasswordManager.Core.Repository;
 
 public class PasswordRepository(Supabase.Client supabase)
 {

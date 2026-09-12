@@ -1,7 +1,7 @@
 using Supabase.Postgrest.Attributes;
 using Supabase.Postgrest.Models;
 
-namespace PasswordManager.Model;
+namespace PasswordManager.Core.Model;
 
 [Table("password")]
 public class EncryptedPassword : BaseModel

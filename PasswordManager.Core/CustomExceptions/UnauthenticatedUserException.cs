@@ -1,4 +1,4 @@
-namespace PasswordManager.CustomExceptions;
+namespace PasswordManager.Core.CustomExceptions;
 
 public class UnauthenticatedUserException : Exception
 {

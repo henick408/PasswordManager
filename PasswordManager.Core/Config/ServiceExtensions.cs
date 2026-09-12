@@ -1,20 +1,16 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using PasswordManager.Model;
-using PasswordManager.Repository;
-using PasswordManager.Service;
+using PasswordManager.Core.Repository;
+using PasswordManager.Core.Model;
+using PasswordManager.Core.Service;
 using AuthState = Supabase.Gotrue.Constants.AuthState;
 
-namespace PasswordManager.Config;
+namespace PasswordManager.Core.Config;
 
 public static class ServiceExtensions
 {
-    public static async Task ConfigureSupabase(this IServiceCollection services)
+    public static async Task ConfigureSupabase(this IServiceCollection services, IConfiguration configuration)
     {
-        var configuration = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json", optional: false)
-            .Build();
-
         string url = configuration["Supabase:Url"]!;
         string? publishableKey = configuration["Supabase:PublishableKey"];
 

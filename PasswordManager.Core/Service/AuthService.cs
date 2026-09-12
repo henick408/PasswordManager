@@ -1,11 +1,11 @@
 using System.Security.Cryptography;
 using System.Text;
-using PasswordManager.CustomExceptions;
-using PasswordManager.Dto;
-using PasswordManager.Model;
+using PasswordManager.Core.CustomExceptions;
+using PasswordManager.Core.Dto;
+using PasswordManager.Core.Model;
 using Supabase.Gotrue;
 
-namespace PasswordManager.Service;
+namespace PasswordManager.Core.Service;
 
 public class AuthService(Supabase.Client supabase, UserSession userSession)
 {

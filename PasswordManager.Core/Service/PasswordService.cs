@@ -1,11 +1,9 @@
-using System.Text.Encodings.Web;
-using System.Text.Json;
-using PasswordManager.Dto;
-using PasswordManager.Repository;
-using PasswordManager.Model;
-using PasswordManager.CustomExceptions;
+using PasswordManager.Core.Dto;
+using PasswordManager.Core.Repository;
+using PasswordManager.Core.Model;
+using PasswordManager.Core.CustomExceptions;
 
-namespace PasswordManager.Service;
+namespace PasswordManager.Core.Service;
 
 public class PasswordService(PasswordRepository passwordRepository, EncryptionService encryptionService)
 {
