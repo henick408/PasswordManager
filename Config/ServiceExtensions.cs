@@ -9,20 +9,24 @@ namespace PasswordManager.Config;
 
 public static class ServiceExtensions
 {
-    public static void ConfigureSupabase(this IServiceCollection services)
+    public static async Task ConfigureSupabase(this IServiceCollection services)
     {
         var configuration = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json", optional: false)
             .Build();
+
         string url = configuration["Supabase:Url"]!;
         string? publishableKey = configuration["Supabase:PublishableKey"];
+
         UserSession userSession = new();
         services.AddSingleton(userSession);
+
         Supabase.SupabaseOptions supabaseOptions = new()
         {
             AutoRefreshToken = true,
             AutoConnectRealtime = true
         };
+
         Supabase.Client supabaseClient = new(url, publishableKey, supabaseOptions);
         supabaseClient.Auth.AddStateChangedListener((_, changed) =>
         {
@@ -34,7 +38,8 @@ public static class ServiceExtensions
                     break;
             }
         });
-        supabaseClient.InitializeAsync().Wait();
+
+        await supabaseClient.InitializeAsync();
         services.AddSingleton(supabaseClient);
     }
 
