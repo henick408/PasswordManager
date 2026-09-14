@@ -5,8 +5,86 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PasswordManager"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Width="1280" Height="780"
+        MinWidth="740">
+    
+    
     <Grid>
-        <Button Content="dziaua"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="180"/>
+            <ColumnDefinition MinWidth="200"/>
+            <ColumnDefinition Width="360"/>
+        </Grid.ColumnDefinitions>
+        
+        <Border Grid.Column="0"
+                Background="LightGray">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="60"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="100"/>
+                </Grid.RowDefinitions>
+                
+                <StackPanel Grid.Row="0"
+                            Margin="0 0 0 8">
+                    <TextBlock Text="H KeyVault"
+                               Padding="10 12"
+                               FontSize="20"
+                               FontWeight="SemiBold"/>
+                    <Separator/>
+                </StackPanel>
+                
+                <DockPanel Grid.Row="1">
+                    <StackPanel DockPanel.Dock="Top"
+                                Margin="0 0 0 8">
+                        <Label Content="VAULT"
+                               Padding="10 8"/>
+                        <Button Content="H Settings"
+                                HorizontalContentAlignment="Left"
+                                FontSize="12"
+                                Padding="10 10"
+                                Background="Transparent"/>
+                    </StackPanel>
+                    
+                    <DockPanel>
+                        <Label DockPanel.Dock="Top"
+                            Content="CATEGORIES"/>
+                        <ListView Background="Transparent" 
+                                  Padding=" 12 4"
+                                  FontSize="14">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="Padding" Value="0 4"></Setter>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListViewItem Content="H Social"/>
+                            <ListViewItem Content="H Work"/>
+                            <ListViewItem Content="H Finance"/>
+                            <ListViewItem Content="H Shopping"/>
+                            <ListViewItem Content="H Entertainment"/>
+                            <ListViewItem Content="H Other"/>
+                        </ListView>
+                    </DockPanel>
+                </DockPanel>
+                
+                
+                <StackPanel Grid.Row="2" 
+                            VerticalAlignment="Bottom">
+                    <Button Content="H Settings"
+                            HorizontalContentAlignment="Left"
+                            FontSize="12"
+                            Padding="10 10"
+                            Background="Transparent"/>
+                    <Button Content="H Logout"
+                            HorizontalContentAlignment="Left"
+                            FontSize="12"
+                            Padding="10 10"
+                            Background="Transparent"/>
+                </StackPanel>
+                
+            </Grid>
+        </Border>
+        <Rectangle Grid.Column="1" Fill="Red"/>
+        <Rectangle Grid.Column="2" Fill="Blue"/>
     </Grid>
 </Window>
