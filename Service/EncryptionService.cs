@@ -13,14 +13,12 @@ public class EncryptionService
 
     public EncryptionService(UserSession session)
     {
-        Console.WriteLine(session.EncryptionHash);
         this.session = session;
     }
 
     public EncryptedPassword Encrypt(PasswordEntry decryptedPassword)
     {
         EnsureThatLoggedIn();
-        Console.WriteLine(Convert.ToBase64String(session.EncryptionHash!));
         byte[] key = session.EncryptionHash!;
         byte[] plainText = Encoding.UTF8.GetBytes(decryptedPassword.ToString());
         byte[] cipherText = new byte[plainText.Length];

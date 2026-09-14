@@ -7,6 +7,6 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <TextBlock FontSize="48" FontFamily="Comic Sans MS" VerticalAlignment="Center" HorizontalAlignment="Center" Text="Dziaua"/>
+        <Button Content="dziaua"/>
     </Grid>
 </Window>
