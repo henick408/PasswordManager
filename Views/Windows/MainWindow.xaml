@@ -1,0 +1,181 @@
+<Window x:Class="PasswordManager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PasswordManager"
+        mc:Ignorable="d"
+        Title="MainWindow" Width="1280" Height="780"
+        MinWidth="700">
+    
+    
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="180"/>
+            <ColumnDefinition MinWidth="200"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        
+        <Border Grid.Column="0"
+                Background="LightGray">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="60"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="100"/>
+                </Grid.RowDefinitions>
+                
+                <StackPanel Grid.Row="0"
+                            Margin="0 0 0 8">
+                    <TextBlock Text="H KeyVault"
+                               Padding="10 12"
+                               FontSize="20"
+                               FontWeight="SemiBold"/>
+                    <Separator/>
+                </StackPanel>
+                
+                <DockPanel Grid.Row="1">
+                    <StackPanel DockPanel.Dock="Top"
+                                Margin="0 0 0 8">
+                        <Label Content="VAULT"
+                               Padding="10 8"/>
+                        <Button Content="H Settings"
+                                HorizontalContentAlignment="Left"
+                                FontSize="12"
+                                Padding="10 10"
+                                Background="Transparent"/>
+                    </StackPanel>
+                    
+                    <DockPanel>
+                        <Label DockPanel.Dock="Top"
+                            Content="CATEGORIES"/>
+                        <ListView Background="Transparent" 
+                                  FontSize="14">
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="Padding" Value="12 4"/>
+                                </Style>
+                                
+                            </ListView.ItemContainerStyle>
+                            <ListViewItem Content="H Social"/>
+                            <ListViewItem Content="H Work"/>
+                            <ListViewItem Content="H Finance"/>
+                            <ListViewItem Content="H Shopping"/>
+                            <ListViewItem Content="H Entertainment"/>
+                            <ListViewItem Content="H Other"/>
+                        </ListView>
+                    </DockPanel>
+                </DockPanel>
+                
+                
+                <StackPanel Grid.Row="2" 
+                            VerticalAlignment="Bottom">
+                    <Button Content="H Settings"
+                            HorizontalContentAlignment="Left"
+                            FontSize="12"
+                            Padding="10 10"
+                            Background="Transparent"/>
+                    <Button Content="H Logout"
+                            HorizontalContentAlignment="Left"
+                            FontSize="12"
+                            Padding="10 10"
+                            Background="Transparent"/>
+                </StackPanel>
+                
+            </Grid>
+        </Border>
+        <Rectangle Grid.Column="1" Fill="Red"/>
+        <!-- 
+            Tutaj zrobi sie template żeby nie było strałki
+            I bindingiem jakimś będzie sie go otwierać i zamykać
+        !-->
+        <Expander Grid.Column="2"
+                  ExpandDirection="Left">
+        <Border Background="LightGray"
+                Width="320"
+                Padding="12">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="120"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                
+                <StackPanel Grid.Row="0">
+                    <TextBlock Text="Github"
+                               FontSize="22"
+                               FontWeight="Bold"
+                               Margin="0 0 0 20"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <Border Grid.Column="0"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                Background="#FF9370DB"
+                                Padding="6"
+                                CornerRadius="4">
+                            <TextBlock Text="Social"
+                                       VerticalAlignment="Center"
+                                       FontSize="16"
+                                       Width="Auto"
+                                       HorizontalAlignment="Left"/>
+                        </Border>
+                        <StackPanel Grid.Column="1"
+                                    Orientation="Horizontal"
+                                    HorizontalAlignment="Right">
+                            <Button Content="H Edit"
+                                    Height="30"
+                                    FontSize="16"
+                                    Padding="8 0"
+                                    Margin="0 0 4 0"/>
+                            <Button Content="H Delete"
+                                    Height="30"
+                                    FontSize="16"
+                                    Padding="8 0"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+                
+                <StackPanel Grid.Row="1">
+                    <StackPanel.Resources>
+                        <Style TargetType="Label">
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                            <Setter Property="Margin" Value="0 0 0 4"/>
+                        </Style>
+                        <Style TargetType="TextBox">
+                            <Setter Property="Padding" Value="4 8"/>
+                            <Setter Property="Margin" Value="0 0 0 8"/>
+                        </Style>
+                        <Style TargetType="PasswordBox">
+                            <Setter Property="Padding" Value="4 8"/>
+                            <Setter Property="Margin" Value="0 0 0 8"/>
+                        </Style>
+                    </StackPanel.Resources>
+                    
+                    <Label Content="H URL"/>
+                    <TextBox Text="github.com"/>
+                    
+                    <Label Content="H USERNAME"/>
+                    <TextBox Text="john.git@gmail.com.com"/>
+                    
+                    <Label Content="H PASSWORD"/>
+                    <PasswordBox Password="haslo123"/>
+                    
+                    <Label Content="H NOTES"/>
+                    <TextBox Text="Notatki bardzo fajne notatki"
+                             Height="200"
+                             AcceptsReturn="True"
+                             VerticalScrollBarVisibility="Auto"
+                             TextWrapping="WrapWithOverflow"/>
+                    
+                </StackPanel>
+                
+                
+            </Grid>
+        </Border>
+        </Expander>
+    </Grid>
+</Window>
