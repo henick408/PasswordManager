@@ -12,6 +12,10 @@ public class AuthService(Supabase.Client supabase, UserSession userSession)
     public async Task<Session?> SignUp(UserRequest request)
     {
         Session? session = await supabase.Auth.SignUp(request.Email, request.Password);
+        if (session is not null)
+        {
+            userSession.EncryptionHash = HashCredentials(request);
+        }
         return session;
     }
 

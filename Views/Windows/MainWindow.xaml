@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PasswordManager"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
         Title="MainWindow" Width="1280" Height="780"
         MinWidth="700">
@@ -39,7 +40,7 @@
                                 Margin="0 0 0 8">
                         <Label Content="VAULT"
                                Padding="10 8"/>
-                        <Button Content="H Settings"
+                        <Button Content="H All Passwords"
                                 HorizontalContentAlignment="Left"
                                 FontSize="12"
                                 Padding="10 10"
@@ -48,7 +49,8 @@
                     
                     <DockPanel>
                         <Label DockPanel.Dock="Top"
-                            Content="CATEGORIES"/>
+                            Content="CATEGORIES"
+                            FontWeight="SemiBold"/>
                         <ListView Background="Transparent" 
                                   FontSize="14">
                             <ListView.ItemContainerStyle>
@@ -84,10 +86,113 @@
                 
             </Grid>
         </Border>
-        <Rectangle Grid.Column="1" Fill="Red"/>
+        
+        <Border Grid.Column="1">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="70"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                
+                <Grid Grid.Row="0"
+                      d:Margin="10"
+                      Background="LightGray">
+                    
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <Border Grid.Column="0"
+                            Margin=" 8 16"
+                            CornerRadius="8"
+                            Background="#000050">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="36"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" 
+                                       Text="H"
+                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Center"
+                                       FontSize="20"
+                                       Foreground="DarkGray"
+                                       />
+                            <TextBox Grid.Column="1" 
+                                     BorderThickness="0"
+                                     Foreground="DarkGray"
+                                     Text="Search password"
+                                     VerticalContentAlignment="Center"
+                                     FontSize="18"
+                                     Padding="16 0 0 0"
+                                     d:Margin="14"
+                                     Background="Transparent"/>
+                        </Grid>
+                    </Border>
+                    
+                    <Button Grid.Column="1"
+                            Content="+ New"
+                            Height="40"
+                            FontSize="14"
+                            Margin="0 0 12 0"
+                            Padding="12 8"/>
+                    
+                </Grid>
+                
+                <ScrollViewer Grid.Row="1"
+                              Margin="16"
+                              VerticalScrollBarVisibility="Visible">
+                    
+                    <!-- 
+                        Przykładowe dane
+                        Później to będą własne UserControls które będą miały w sobie PasswordEntry
+                        Będą wyświetlać name, url oraz username
+                        Kliknięcie danego hasła rozłoży expander z prawej strony i przypisze dane
+                        Będzie mozna też prawym przyciskiem dostać opcje:
+                        Kopiowanie username, kopiowanie hasła, popup hasła itd
+                    !-->
+                    <ItemsControl ItemsSource="{Binding MojePrzyciski}">
+                        <ItemsControl.Resources>
+                            <Style TargetType="Button">
+                                <Setter Property="Margin" Value="8"/>
+                                <Setter Property="Width" Value="160"/>
+                                <Setter Property="Height" Value="120"/>
+                                <Setter Property="FontSize" Value="16"/>
+                            </Style>
+                            
+                        </ItemsControl.Resources>
+                        
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button>
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Name}"
+                                                   HorizontalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Url}"/>
+                                        <TextBlock Text="{Binding Username}"/>
+                                    </StackPanel>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+
+                    </ItemsControl>
+                    
+                    
+                    
+                </ScrollViewer>
+                
+            </Grid>
+        </Border>
         <!-- 
-            Tutaj zrobi sie template żeby nie było strałki
-            I bindingiem jakimś będzie sie go otwierać i zamykać
+            Tutaj zrobi sie template żeby nie było strzałki
+            Expander będzie się otwierał gdy będzie wybrane jakieś hasło ze środkowego panelu
         !-->
         <Expander Grid.Column="2"
                   ExpandDirection="Left">
