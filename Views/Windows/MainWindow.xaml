@@ -44,7 +44,8 @@
                                 HorizontalContentAlignment="Left"
                                 FontSize="12"
                                 Padding="10 10"
-                                Background="Transparent"/>
+                                Background="Transparent"
+                                BorderBrush="Transparent"/>
                     </StackPanel>
                     
                     <DockPanel>
@@ -72,16 +73,17 @@
                 
                 <StackPanel Grid.Row="2" 
                             VerticalAlignment="Bottom">
-                    <Button Content="H Settings"
-                            HorizontalContentAlignment="Left"
-                            FontSize="12"
-                            Padding="10 10"
-                            Background="Transparent"/>
-                    <Button Content="H Logout"
-                            HorizontalContentAlignment="Left"
-                            FontSize="12"
-                            Padding="10 10"
-                            Background="Transparent"/>
+                    <StackPanel.Resources>
+                        <Style TargetType="Button">
+                            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                            <Setter Property="FontSize" Value="12"/>
+                            <Setter Property="Padding" Value="10 "/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="BorderBrush" Value="Transparent"/>
+                        </Style>
+                    </StackPanel.Resources>
+                    <Button Content="H Settings"/>
+                    <Button Content="H Logout"/>
                 </StackPanel>
                 
             </Grid>
@@ -196,7 +198,7 @@
         !-->
         <Expander Grid.Column="2"
                   ExpandDirection="Left">
-        <Border Background="LightGray"
+            <Border Background="LightGray"
                 Width="320"
                 Padding="12">
             <Grid>
@@ -231,15 +233,18 @@
                         <StackPanel Grid.Column="1"
                                     Orientation="Horizontal"
                                     HorizontalAlignment="Right">
+                            
+                            <StackPanel.Resources>
+                                <Style TargetType="Button">
+                                    <Setter Property="Height" Value="30"/>
+                                    <Setter Property="FontSize" Value="16"/>
+                                    <Setter Property="Padding" Value="8 0"/>
+                                </Style>
+                            </StackPanel.Resources>
+                            
                             <Button Content="H Edit"
-                                    Height="30"
-                                    FontSize="16"
-                                    Padding="8 0"
                                     Margin="0 0 4 0"/>
-                            <Button Content="H Delete"
-                                    Height="30"
-                                    FontSize="16"
-                                    Padding="8 0"/>
+                            <Button Content="H Delete"/>
                         </StackPanel>
                     </Grid>
                 </StackPanel>
@@ -252,10 +257,12 @@
                         </Style>
                         <Style TargetType="TextBox">
                             <Setter Property="Padding" Value="4 8"/>
+                            <Setter Property="IsEnabled" Value="False"/>
                             <Setter Property="Margin" Value="0 0 0 8"/>
                         </Style>
                         <Style TargetType="PasswordBox">
                             <Setter Property="Padding" Value="4 8"/>
+                            <Setter Property="IsEnabled" Value="False"/>
                             <Setter Property="Margin" Value="0 0 0 8"/>
                         </Style>
                     </StackPanel.Resources>
@@ -275,10 +282,7 @@
                              AcceptsReturn="True"
                              VerticalScrollBarVisibility="Auto"
                              TextWrapping="WrapWithOverflow"/>
-                    
                 </StackPanel>
-                
-                
             </Grid>
         </Border>
         </Expander>
