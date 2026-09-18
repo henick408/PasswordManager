@@ -51,20 +51,14 @@
                         <Label DockPanel.Dock="Top"
                             Content="CATEGORIES"
                             FontWeight="SemiBold"/>
-                        <ListView Background="Transparent" 
+                        <ListView Background="Transparent"
+                                  ItemsSource="{Binding Categories}"
                                   FontSize="14">
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="ListViewItem">
                                     <Setter Property="Padding" Value="12 4"/>
                                 </Style>
-                                
                             </ListView.ItemContainerStyle>
-                            <ListViewItem Content="H Social"/>
-                            <ListViewItem Content="H Work"/>
-                            <ListViewItem Content="H Finance"/>
-                            <ListViewItem Content="H Shopping"/>
-                            <ListViewItem Content="H Entertainment"/>
-                            <ListViewItem Content="H Other"/>
                         </ListView>
                     </DockPanel>
                 </DockPanel>
@@ -140,10 +134,6 @@
                             Padding="12 8"/>
                     
                 </Grid>
-                
-                <ScrollViewer Grid.Row="1"
-                              Margin="16"
-                              VerticalScrollBarVisibility="Visible">
                     
                     <!-- 
                         Przykładowe dane
@@ -153,8 +143,25 @@
                         Będzie mozna też prawym przyciskiem dostać opcje:
                         Kopiowanie username, kopiowanie hasła, popup hasła itd
                     !-->
-                    <ItemsControl ItemsSource="{Binding Passwords}">
-                        <ItemsControl.Resources>
+                    <ListBox Grid.Row="1"
+                             Margin="16"
+                             ScrollViewer.VerticalScrollBarVisibility="Visible"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             ItemsSource="{Binding Passwords}"
+                             SelectedItem="{Binding SelectedPassword, Mode=TwoWay}"
+                             Background="Transparent"
+                             BorderThickness="0">
+                        <ListBox.Resources>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <ContentPresenter/>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                            
                             <Style TargetType="controls:PasswordControl">
                                 <Setter Property="Margin" Value="8"/>
                                 <Setter Property="Width" Value="160"/>
@@ -162,24 +169,21 @@
                                 <Setter Property="FontSize" Value="16"/>
                             </Style>
                             
-                        </ItemsControl.Resources>
+                        </ListBox.Resources>
                         
-                        <ItemsControl.ItemsPanel>
+                        <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel/>
                             </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
+                        </ListBox.ItemsPanel>
                         
-                        <ItemsControl.ItemTemplate>
+                        <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <controls:PasswordControl/>
                             </DataTemplate>
-                        </ItemsControl.ItemTemplate>
+                        </ListBox.ItemTemplate>
 
-                    </ItemsControl>
-                    
-                    
-                </ScrollViewer>
+                    </ListBox>
                 
             </Grid>
         </Border>
@@ -191,7 +195,8 @@
                   ExpandDirection="Left">
             <Border Background="LightGray"
                 Width="320"
-                Padding="12">
+                Padding="12"
+                DataContext="{Binding SelectedPassword.PasswordEntry}">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="120"/>
@@ -199,7 +204,7 @@
                 </Grid.RowDefinitions>
                 
                 <StackPanel Grid.Row="0">
-                    <TextBlock Text="Github"
+                    <TextBlock Text="{Binding Name}"
                                FontSize="22"
                                FontWeight="Bold"
                                Margin="0 0 0 20"/>
@@ -215,7 +220,7 @@
                                 Background="#FF9370DB"
                                 Padding="6"
                                 CornerRadius="4">
-                            <TextBlock Text="Social"
+                            <TextBlock Text="{Binding Category}"
                                        VerticalAlignment="Center"
                                        FontSize="16"
                                        Width="Auto"
@@ -259,16 +264,16 @@
                     </StackPanel.Resources>
                     
                     <Label Content="H URL"/>
-                    <TextBox Text="github.com"/>
+                    <TextBox Text="{Binding Url}"/>
                     
                     <Label Content="H USERNAME"/>
-                    <TextBox Text="john.git@gmail.com.com"/>
+                    <TextBox Text="{Binding Username}"/>
                     
                     <Label Content="H PASSWORD"/>
                     <PasswordBox Password="haslo123"/>
                     
                     <Label Content="H NOTES"/>
-                    <TextBox Text="Notatki bardzo fajne notatki"
+                    <TextBox Text="{Binding Notes}"
                              Height="200"
                              AcceptsReturn="True"
                              VerticalScrollBarVisibility="Auto"
