@@ -13,7 +13,8 @@ public class MainViewModel : ViewModelBase
     
     private string selectedCategory;
     private ObservableCollection<PasswordControlViewModel> passwords;
-    private PasswordControlViewModel selectedPassword;
+    private PasswordControlViewModel? selectedPassword;
+    private bool isPasswordSelected;
     
     public IList<string> Categories { get; } = new List<string>
     {
@@ -26,11 +27,19 @@ public class MainViewModel : ViewModelBase
         set => SetField(ref selectedCategory, value);
     }
 
-    public PasswordControlViewModel SelectedPassword
+    public PasswordControlViewModel? SelectedPassword
     {
         get => selectedPassword;
-        set => SetField(ref selectedPassword, value);
+        set
+        {
+            if (SetField(ref selectedPassword, value))
+            {
+                OnPropertyChanged(nameof(IsPasswordSelected));
+            }
+        }
     }
+
+    public bool IsPasswordSelected => SelectedPassword != null;
 
     private IList<PasswordEntry> entries = new List<PasswordEntry>
     {

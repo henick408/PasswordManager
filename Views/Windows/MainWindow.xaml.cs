@@ -1,5 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 using PasswordManager.Dto;
 using PasswordManager.ViewModels;
 
@@ -20,5 +22,14 @@ public partial class MainWindow : Window
     {
         // to jest tymczasowe, tak naprawde ten przycisk ma usunąć filtry
         await viewModel.ListPasswords();
+    }
+
+    private void PasswordListBox_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (e.OriginalSource is DependencyObject source &&
+            ItemsControl.ContainerFromElement((ListBox)sender, source) is null)
+        {
+            ((ListBox)sender).SelectedItem = null;
+        }
     }
 }

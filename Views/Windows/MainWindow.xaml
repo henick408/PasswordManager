@@ -146,7 +146,8 @@
                              ItemsSource="{Binding Passwords}"
                              SelectedItem="{Binding SelectedPassword, Mode=TwoWay}"
                              Background="Transparent"
-                             BorderThickness="0">
+                             BorderThickness="0"
+                             PreviewMouseDown="PasswordListBox_PreviewMouseDown">
                         <ListBox.Resources>
                             <Style TargetType="ListBoxItem">
                                 <Setter Property="Template">
@@ -188,7 +189,8 @@
             Expander będzie się otwierał gdy będzie wybrane jakieś hasło ze środkowego panelu
         !-->
         <Expander Grid.Column="2"
-                  ExpandDirection="Left">
+                  ExpandDirection="Left"
+                  IsExpanded="{Binding IsPasswordSelected, Mode=OneWay}">
             <Border Background="LightGray"
                 Width="320"
                 Padding="12"
