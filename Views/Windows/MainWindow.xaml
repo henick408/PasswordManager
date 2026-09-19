@@ -8,6 +8,32 @@
         Title="MainWindow" Width="1280" Height="780"
         MinWidth="700">
     
+
+    <Window.Resources>
+
+    <ControlTemplate x:Key="NoHeaderExpanderTemplate"
+                     TargetType="{x:Type Expander}">
+
+        <ContentPresenter x:Name="ExpanderContent"
+                          ContentSource="Content"
+                          Visibility="Collapsed"/>
+
+            <ControlTemplate.Triggers>
+
+                <Trigger Property="IsExpanded"
+                        Value="True">
+
+                    <Setter TargetName="ExpanderContent"
+                            Property="Visibility"
+                            Value="Visible"/>
+
+                </Trigger>
+
+            </ControlTemplate.Triggers>
+
+        </ControlTemplate>
+
+    </Window.Resources>
     
     <Grid>
         <Grid.ColumnDefinitions>
@@ -191,7 +217,8 @@
         !-->
         <Expander Grid.Column="2"
                   ExpandDirection="Left"
-                  IsExpanded="{Binding IsPasswordSelected, Mode=OneWay}">
+                  IsExpanded="{Binding IsPasswordSelected, Mode=OneWay}"
+                  Template="{StaticResource NoHeaderExpanderTemplate}">
             <Border Background="LightGray"
                 Width="320"
                 Padding="12"

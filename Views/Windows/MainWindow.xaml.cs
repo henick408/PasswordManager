@@ -36,6 +36,6 @@ public partial class MainWindow : Window
     private async void SignInButton_OnClick(object sender, RoutedEventArgs e)
     {
         await viewModel.SignIn();
-        MessageBox.Show("Signed up");
+        MessageBox.Show("Signed in");
     }
 }
