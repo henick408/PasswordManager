@@ -1,11 +1,16 @@
 ﻿using System.Collections.ObjectModel;
 using System.Reactive.Linq;
+using System.Windows;
 using PasswordManager.Dto;
+using PasswordManager.Service;
 
 namespace PasswordManager.ViewModels;
 
 public class MainViewModel : ViewModelBase
 {
+    private readonly AuthService authService;
+    private readonly PasswordService passwordService;
+    
     private string selectedCategory;
     private ObservableCollection<PasswordControlViewModel> passwords;
     private PasswordControlViewModel selectedPassword;
@@ -63,9 +68,26 @@ public class MainViewModel : ViewModelBase
         set => SetField(ref passwords, value);
     } 
 
-    public MainViewModel()
+    public MainViewModel(AuthService authService, PasswordService passwordService)
     {
-        Passwords = new ObservableCollection<PasswordControlViewModel>(entries.Select(pass => new PasswordControlViewModel(pass))
-            .ToList());
+        this.authService = authService;
+        this.passwordService = passwordService;
+        // Passwords = new ObservableCollection<PasswordControlViewModel>(entries.Select(pass => new PasswordControlViewModel(pass))
+        //     .ToList());
+    }
+
+    public async Task ListPasswords()
+    {
+        var user = new UserRequest
+        {
+            Email = "test@test.com",
+            Password = "testtest"
+        };
+        // sign in jest tutaj tylko tymczasowo
+        await authService.SignIn(user);
+        IList<PasswordEntry> passwordsEntries = await passwordService.GetPasswords();
+        Passwords = new ObservableCollection<PasswordControlViewModel>(
+            passwordsEntries.Select(entry => new PasswordControlViewModel(entry))
+            );
     }
 }

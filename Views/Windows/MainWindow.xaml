@@ -44,7 +44,8 @@
                                 FontSize="12"
                                 Padding="10 10"
                                 Background="Transparent"
-                                BorderBrush="Transparent"/>
+                                BorderBrush="Transparent"
+                                Click="ListPasswordsButton_OnClick"/>
                     </StackPanel>
                     
                     <DockPanel>
@@ -134,18 +135,13 @@
                             Padding="12 8"/>
                     
                 </Grid>
-                    
                     <!-- 
-                        Przykładowe dane
-                        Później to będą własne UserControls które będą miały w sobie PasswordEntry
-                        Będą wyświetlać name, url oraz username
-                        Kliknięcie danego hasła rozłoży expander z prawej strony i przypisze dane
                         Będzie mozna też prawym przyciskiem dostać opcje:
                         Kopiowanie username, kopiowanie hasła, popup hasła itd
                     !-->
                     <ListBox Grid.Row="1"
                              Margin="16"
-                             ScrollViewer.VerticalScrollBarVisibility="Visible"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                              ItemsSource="{Binding Passwords}"
                              SelectedItem="{Binding SelectedPassword, Mode=TwoWay}"

@@ -17,6 +17,7 @@ public partial class App : Application
         services.AddServices();
         services.AddRepositories();
         services.AddSingleton<MainWindow>();
+        services.AddViewModels();
         
         ServiceProvider serviceProvider = services.BuildServiceProvider();
 

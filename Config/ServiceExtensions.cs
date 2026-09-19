@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PasswordManager.Model;
 using PasswordManager.Repository;
 using PasswordManager.Service;
+using PasswordManager.ViewModels;
 using AuthState = Supabase.Gotrue.Constants.AuthState;
 
 namespace PasswordManager.Config;
@@ -53,5 +54,11 @@ public static class ServiceExtensions
     public static void AddRepositories(this IServiceCollection services)
     {
         services.AddTransient<PasswordRepository>();
+    }
+
+    public static void AddViewModels(this IServiceCollection services)
+    {
+        services.AddTransient<MainViewModel>();
+        services.AddTransient<PasswordControlViewModel>();
     }
 }

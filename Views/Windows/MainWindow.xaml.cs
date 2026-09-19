@@ -7,11 +7,18 @@ namespace PasswordManager;
 
 public partial class MainWindow : Window
 {
-    private readonly MainViewModel viewModel = new MainViewModel();
+    private readonly MainViewModel viewModel;
 
-    public MainWindow()
+    public MainWindow(MainViewModel viewModel)
     {
         InitializeComponent();
-        this.DataContext = viewModel;
+        this.viewModel = viewModel;
+        this.DataContext = this.viewModel;
+    }
+
+    private async void ListPasswordsButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        // to jest tymczasowe, tak naprawde ten przycisk ma usunąć filtry
+        await viewModel.ListPasswords();
     }
 }
