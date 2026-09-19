@@ -87,6 +87,14 @@ public class MainViewModel : ViewModelBase
 
     public async Task ListPasswords()
     {
+        IList<PasswordEntry> passwordsEntries = await passwordService.GetPasswords();
+        Passwords = new ObservableCollection<PasswordControlViewModel>(
+            passwordsEntries.Select(entry => new PasswordControlViewModel(entry))
+            );
+    }
+
+    public async Task SignIn()
+    {
         var user = new UserRequest
         {
             Email = "test@test.com",
@@ -94,9 +102,5 @@ public class MainViewModel : ViewModelBase
         };
         // sign in jest tutaj tylko tymczasowo
         await authService.SignIn(user);
-        IList<PasswordEntry> passwordsEntries = await passwordService.GetPasswords();
-        Passwords = new ObservableCollection<PasswordControlViewModel>(
-            passwordsEntries.Select(entry => new PasswordControlViewModel(entry))
-            );
     }
 }

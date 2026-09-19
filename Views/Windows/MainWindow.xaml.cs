@@ -32,4 +32,10 @@ public partial class MainWindow : Window
             ((ListBox)sender).SelectedItem = null;
         }
     }
+
+    private async void SignInButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        await viewModel.SignIn();
+        MessageBox.Show("Signed up");
+    }
 }
