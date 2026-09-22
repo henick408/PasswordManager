@@ -49,9 +49,9 @@ public partial class AddEditPasswordDialog : Window
         
         List<string> errors = new();
         if (string.IsNullOrEmpty(name)) errors.Add("Name cannot be empty.");
-        if (string.IsNullOrEmpty(name)) errors.Add("Username cannot be empty.");
-        if (string.IsNullOrEmpty(name)) errors.Add("Password cannot be empty.");
-        if (string.IsNullOrEmpty(name)) errors.Add("Name cannot be empty.");
+        if (string.IsNullOrEmpty(url)) errors.Add("Url cannot be empty.");
+        if (string.IsNullOrEmpty(username)) errors.Add("Username cannot be empty.");
+        if (string.IsNullOrEmpty(password)) errors.Add("Password cannot be empty.");
         if (category == null) errors.Add("Category must be selected");
 
         if (errors.Count > 0)
