@@ -173,7 +173,8 @@
                              SelectedItem="{Binding SelectedPassword, Mode=TwoWay}"
                              Background="Transparent"
                              BorderThickness="0"
-                             PreviewMouseDown="PasswordListBox_PreviewMouseDown">
+                             PreviewMouseLeftButtonDown="PasswordListBox_PreviewMouseDown"
+                             PreviewMouseRightButtonDown="PasswordListBox_PreviewRightMouseDown">
                         <ListBox.Resources>
                             <Style TargetType="ListBoxItem">
                                 <Setter Property="Template">

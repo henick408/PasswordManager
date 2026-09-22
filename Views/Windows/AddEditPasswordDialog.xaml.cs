@@ -1,28 +1,31 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using PasswordManager.Dto;
-using PasswordManager.ViewModels;
 
 namespace PasswordManager.Views.Windows;
 
 public partial class AddEditPasswordDialog : Window
 {
-    private readonly AddEditPasswordViewModel viewModel;
     private bool isSyncing;
+    public PasswordEntry PasswordEntry { get; }
 
-    public AddEditPasswordDialog(IList<string> categories, PasswordEntry? existingPassword = null)
+    public AddEditPasswordDialog(IList<string> categories, PasswordEntry? existing = null)
     {
         InitializeComponent();
-        viewModel = new AddEditPasswordViewModel(categories, existingPassword);
-        DataContext = viewModel;
-        if (existingPassword != null)
+        CategoryComboBox.ItemsSource = categories;
+        PasswordEntry = existing ?? new PasswordEntry();
+        Loaded += (_, _) => NameBox.Focus();
+        if (existing != null)
         {
             HeaderBlock.Text = "Edit password";
-            HiddenPasswordBox.Password = existingPassword.Password;
+            NameBox.Text = existing.Name;
+            UrlBox.Text = existing.Url;
+            UsernameBox.Text = existing.Username;
+            HiddenPasswordBox.Password = existing.Password;
+            CategoryComboBox.SelectedItem = existing.Category;
+            NotesBox.Text = existing.Notes;
         }
     }
-    
-    public PasswordEntry Password { get; private set; }
 
     private void GeneratorExpander_OnClick(object sender, RoutedEventArgs e)
     {
@@ -33,9 +36,37 @@ public partial class AddEditPasswordDialog : Window
 
     private void SaveChangesButton_OnClick(object sender, RoutedEventArgs e)
     {
-        viewModel.Password.Password = HiddenPasswordBox.Password;
-        viewModel.Password.Category = viewModel.SelectedCategory;
-        Password = viewModel.Password;
+        // viewModel.Password.Password = HiddenPasswordBox.Password;
+        // viewModel.Password.Category = viewModel.SelectedCategory;
+        // PasswordEntry = viewModel.Password;
+        // DialogResult = true;
+        string name = NameBox.Text;
+        string url = UrlBox.Text.Trim();
+        string username = UsernameBox.Text.Trim();
+        string password = HiddenPasswordBox.Password.Trim();
+        string? category = CategoryComboBox.SelectedItem as string;
+        string notes = NotesBox.Text.Trim();
+        
+        List<string> errors = new();
+        if (string.IsNullOrEmpty(name)) errors.Add("Name cannot be empty.");
+        if (string.IsNullOrEmpty(name)) errors.Add("Username cannot be empty.");
+        if (string.IsNullOrEmpty(name)) errors.Add("Password cannot be empty.");
+        if (string.IsNullOrEmpty(name)) errors.Add("Name cannot be empty.");
+        if (category == null) errors.Add("Category must be selected");
+
+        if (errors.Count > 0)
+        {
+            MessageBox.Show(string.Join("\n", errors), "Missing data", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        PasswordEntry.Name = name;
+        PasswordEntry.Url = url;
+        PasswordEntry.Username = username;
+        PasswordEntry.Password = password;
+        PasswordEntry.Category = category!;
+        PasswordEntry.Notes = notes;
+
         DialogResult = true;
     }
 

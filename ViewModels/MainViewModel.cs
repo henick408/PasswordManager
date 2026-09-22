@@ -77,23 +77,27 @@ public class MainViewModel : ViewModelBase
 
     public async Task CreatePassword()
     {
-        var dialog = new AddEditPasswordDialog(Categories);
+        var dialog = new AddEditPasswordDialog(Categories) {Owner = Application.Current.MainWindow};
         if (dialog.ShowDialog() == true)
         {
-            await passwordService.CreatePassword(dialog.Password);
-            MessageBox.Show($"Dodano hasło o Id={dialog.Password.Id}");
+            var selected = new PasswordControlViewModel(dialog.PasswordEntry);
+            await passwordService.CreatePassword(dialog.PasswordEntry);
+            MessageBox.Show("Password added");
             await ListPasswords();
+            SelectedPassword = selected;
         }
     }
 
     public async Task UpdatePassword()
     {
-        var dialog = new AddEditPasswordDialog(Categories, SelectedPassword!.PasswordEntry);
+        var dialog = new AddEditPasswordDialog(Categories, SelectedPassword!.PasswordEntry) {Owner = Application.Current.MainWindow};
         if (dialog.ShowDialog() == true)
         {
-            await passwordService.UpdatePassword(dialog.Password);
-            MessageBox.Show($"Edytowano hasło o Name={dialog.Password.Id}");
+            var selected = SelectedPassword;
+            await passwordService.UpdatePassword(dialog.PasswordEntry);
+            MessageBox.Show("Password updated");
             await ListPasswords();
+            SelectedPassword = selected;
         }
     }
 }

@@ -45,4 +45,9 @@ public partial class MainWindow : Window
     {
         await viewModel.UpdatePassword();
     }
+
+    private void PasswordListBox_PreviewRightMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        e.Handled = true;
+    }
 }
