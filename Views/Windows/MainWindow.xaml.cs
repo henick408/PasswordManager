@@ -24,11 +24,24 @@ public partial class MainWindow : Window
 
     private void PasswordListBox_PreviewMouseDown(object sender, MouseButtonEventArgs e)
     {
-        if (e.OriginalSource is DependencyObject source &&
-            ItemsControl.ContainerFromElement((ListBox)sender, source) is null)
+        var listBox = (ListBox)sender;
+
+        if (e.OriginalSource is not DependencyObject source)
         {
-            ((ListBox)sender).SelectedItem = null;
+            return;
         }
+
+        if (ItemsControl.ContainerFromElement(listBox, source) is ListBoxItem container)
+        {
+            listBox.SelectedItem = container.DataContext;
+            container.Focus();
+        }
+        else
+        {
+            listBox.SelectedItem = null;
+        }
+
+        e.Handled = true;
     }
 
     private async void SignInButton_OnClick(object sender, RoutedEventArgs e)
