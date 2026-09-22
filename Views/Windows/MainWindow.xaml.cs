@@ -1,8 +1,6 @@
-using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using PasswordManager.Dto;
 using PasswordManager.ViewModels;
 
 namespace PasswordManager;
@@ -36,6 +34,15 @@ public partial class MainWindow : Window
     private async void SignInButton_OnClick(object sender, RoutedEventArgs e)
     {
         await viewModel.SignIn();
-        MessageBox.Show("Signed in");
+    }
+
+    private async void CreatePassword_OnClick(object sender, RoutedEventArgs e)
+    {
+        await viewModel.CreatePassword();
+    }
+
+    private async void EditPassword_OnClick(object sender, RoutedEventArgs e)
+    {
+        await viewModel.UpdatePassword();
     }
 }

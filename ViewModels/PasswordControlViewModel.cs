@@ -1,5 +1,4 @@
 ﻿using PasswordManager.Dto;
-using PasswordManager.ViewModels;
 
 namespace PasswordManager.ViewModels;
 

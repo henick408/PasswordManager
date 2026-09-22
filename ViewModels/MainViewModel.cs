@@ -1,8 +1,8 @@
 ﻿using System.Collections.ObjectModel;
-using System.Reactive.Linq;
 using System.Windows;
 using PasswordManager.Dto;
 using PasswordManager.Service;
+using PasswordManager.Views.Windows;
 
 namespace PasswordManager.ViewModels;
 
@@ -41,36 +41,6 @@ public class MainViewModel : ViewModelBase
 
     public bool IsPasswordSelected => SelectedPassword != null;
 
-    private IList<PasswordEntry> entries = new List<PasswordEntry>
-    {
-        new PasswordEntry
-        {
-            Url = "github.com",
-            Name = "Github",
-            Username = "github@mail.com",
-            Category = "Social",
-            Notes = "hujhujhuj"
-        },
-        new PasswordEntry
-        {
-            Url = "google.com",
-            Name = "Google",
-            Username = "google@mail.com"
-        },
-        new PasswordEntry
-        {
-            Url = "facebook.com",
-            Name = "Facebook",
-            Username = "facebook@mail.com"
-        },
-        new PasswordEntry
-        {
-            Url = "usos.com",
-            Name = "Usos",
-            Username = "usos@mail.com"
-        },
-    };
-
     public ObservableCollection<PasswordControlViewModel> Passwords
     {
         get => passwords;
@@ -102,5 +72,28 @@ public class MainViewModel : ViewModelBase
         };
         // sign in jest tutaj tylko tymczasowo
         await authService.SignIn(user);
+        MessageBox.Show("Signed in");
+    }
+
+    public async Task CreatePassword()
+    {
+        var dialog = new AddEditPasswordDialog(Categories);
+        if (dialog.ShowDialog() == true)
+        {
+            await passwordService.CreatePassword(dialog.Password);
+            MessageBox.Show($"Dodano hasło o Id={dialog.Password.Id}");
+            await ListPasswords();
+        }
+    }
+
+    public async Task UpdatePassword()
+    {
+        var dialog = new AddEditPasswordDialog(Categories, SelectedPassword!.PasswordEntry);
+        if (dialog.ShowDialog() == true)
+        {
+            await passwordService.UpdatePassword(dialog.Password);
+            MessageBox.Show($"Edytowano hasło o Name={dialog.Password.Id}");
+            await ListPasswords();
+        }
     }
 }
