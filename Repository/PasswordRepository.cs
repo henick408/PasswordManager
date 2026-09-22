@@ -1,21 +1,26 @@
 using PasswordManager.CustomExceptions;
 using PasswordManager.Dto;
 using PasswordManager.Model;
+using Supabase.Postgrest;
 
 namespace PasswordManager.Repository;
 
 public class PasswordRepository(Supabase.Client supabase)
 {
-    public async Task InsertPassword(EncryptedPassword password)
+    public async Task<EncryptedPassword> InsertPassword(EncryptedPassword password)
     {
         EnsureThatLoggedIn();
-        await supabase.From<EncryptedPassword>().Insert(password);
+        var response = await supabase.From<EncryptedPassword>().Insert(password,
+            new QueryOptions { Returning = QueryOptions.ReturnType.Representation });
+        return response.Models.Single();
     }
 
-    public async Task UpdatePassword(EncryptedPassword password)
+    public async Task<EncryptedPassword> UpdatePassword(EncryptedPassword password)
     {
         EnsureThatLoggedIn();
-        await supabase.From<EncryptedPassword>().Update(password);
+        var response = await supabase.From<EncryptedPassword>().Update(password,
+            new QueryOptions { Returning = QueryOptions.ReturnType.Representation });
+        return response.Models.Single();
     }
 
     public async Task<IList<EncryptedPassword>> ListPasswords()

@@ -6,7 +6,7 @@ namespace PasswordManager.Model;
 [Table("password")]
 public class EncryptedPassword : BaseModel
 {
-    [PrimaryKey("id")]
+    [PrimaryKey("id", false)]
     public long Id { get; set; }
 
     [Column("nonce")]

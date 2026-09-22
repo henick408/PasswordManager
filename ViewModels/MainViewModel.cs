@@ -80,11 +80,10 @@ public class MainViewModel : ViewModelBase
         var dialog = new AddEditPasswordDialog(Categories) {Owner = Application.Current.MainWindow};
         if (dialog.ShowDialog() == true)
         {
-            var selected = new PasswordControlViewModel(dialog.PasswordEntry);
-            await passwordService.CreatePassword(dialog.PasswordEntry);
-            MessageBox.Show("Password added");
+            var createdPassword = await passwordService.CreatePassword(dialog.PasswordEntry);
             await ListPasswords();
-            SelectedPassword = selected;
+            MessageBox.Show("Password added");
+            SelectedPassword = new PasswordControlViewModel(createdPassword);
         }
     }
 
@@ -95,9 +94,22 @@ public class MainViewModel : ViewModelBase
         {
             var selected = SelectedPassword;
             await passwordService.UpdatePassword(dialog.PasswordEntry);
-            MessageBox.Show("Password updated");
             await ListPasswords();
+            MessageBox.Show("Password updated");
             SelectedPassword = selected;
         }
     }
+
+    public async Task DeletePassword()
+    {
+        var messageBoxResult = MessageBox.Show($"Delete {SelectedPassword!.PasswordEntry.Name}?\nThis action cannot be undone.", "Delete password", MessageBoxButton.YesNo, MessageBoxImage.Question);
+        if (messageBoxResult == MessageBoxResult.Yes)
+        {
+            await passwordService.DeletePassword(SelectedPassword.PasswordEntry);
+            await ListPasswords();
+            MessageBox.Show("Password deleted");
+            SelectedPassword = null;
+        }
+    }
+    
 }

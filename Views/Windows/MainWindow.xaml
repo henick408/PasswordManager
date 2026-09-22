@@ -267,7 +267,8 @@
                             <Button Content="H Edit"
                                     Margin="0 0 4 0"
                                     Click="EditPassword_OnClick"/>
-                            <Button Content="H Delete"/>
+                            <Button Content="H Delete"
+                                    Click="DeletePassword_OnClick"/>
                         </StackPanel>
                     </Grid>
                 </StackPanel>

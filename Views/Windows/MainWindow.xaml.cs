@@ -45,6 +45,10 @@ public partial class MainWindow : Window
     {
         await viewModel.UpdatePassword();
     }
+    private async void DeletePassword_OnClick(object sender, RoutedEventArgs e)
+    {
+        await viewModel.DeletePassword();
+    }
 
     private void PasswordListBox_PreviewRightMouseDown(object sender, MouseButtonEventArgs e)
     {

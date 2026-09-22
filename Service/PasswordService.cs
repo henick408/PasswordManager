@@ -24,16 +24,18 @@ public class PasswordService(PasswordRepository passwordRepository, EncryptionSe
         return encryptionService.Decrypt(encryptedPassword);
     }
 
-    public async Task CreatePassword(PasswordEntry passwordEntry)
+    public async Task<PasswordEntry> CreatePassword(PasswordEntry passwordEntry)
     {
         EncryptedPassword encryptedPassword = encryptionService.Encrypt(passwordEntry);
-        await passwordRepository.InsertPassword(encryptedPassword);
+        EncryptedPassword insertedPassword = await passwordRepository.InsertPassword(encryptedPassword);
+        return encryptionService.Decrypt(insertedPassword);
     }
 
-    public async Task UpdatePassword(PasswordEntry passwordEntry)
+    public async Task<PasswordEntry> UpdatePassword(PasswordEntry passwordEntry)
     {
         EncryptedPassword encryptedPassword = encryptionService.Encrypt(passwordEntry);
-        await passwordRepository.UpdatePassword(encryptedPassword);
+        EncryptedPassword updatedPassword = await passwordRepository.UpdatePassword(encryptedPassword);
+        return encryptionService.Decrypt(updatedPassword);
     }
 
     public Task DeletePassword(PasswordEntry passwordEntry)
