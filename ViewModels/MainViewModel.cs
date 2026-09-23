@@ -15,11 +15,24 @@ public class MainViewModel : ViewModelBase
     private ObservableCollection<PasswordControlViewModel> passwords;
     private ObservableCollection<PasswordControlViewModel> passwordsFromDatabase;
     private PasswordControlViewModel? selectedPassword;
+    private string passwordSearch;
     
     public IList<string> Categories { get; } = new List<string>
     {
         "Social", "Work", "Finance", "Shopping", "Entertainment", "Other"
     };
+
+    public string PasswordSearch
+    {
+        get => passwordSearch;
+        set
+        {
+            if (SetField(ref passwordSearch, value))
+            {
+                Passwords = GetFilteredPasswords();
+            }
+        }
+    }
 
     public string? SelectedCategory
     {
@@ -67,10 +80,19 @@ public class MainViewModel : ViewModelBase
     
     private ObservableCollection<PasswordControlViewModel> GetFilteredPasswords()
     {
-        return SelectedCategory is null
-            ? PasswordsFromDatabase
-            : new ObservableCollection<PasswordControlViewModel>(
-                PasswordsFromDatabase.Where(p => p.PasswordEntry.Category == SelectedCategory));
+        IList<PasswordControlViewModel> filtered = PasswordsFromDatabase;
+
+        if (SelectedCategory is not null)
+        {
+            filtered = filtered.Where(password => password.PasswordEntry.Category == SelectedCategory).ToList();
+        }
+
+        if (!string.IsNullOrEmpty(PasswordSearch))
+        {
+            filtered = filtered.Where(password => password.PasswordEntry.Name.StartsWith(PasswordSearch, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+        return new ObservableCollection<PasswordControlViewModel>(filtered);
     }
 
     public MainViewModel(AuthService authService, PasswordService passwordService)
