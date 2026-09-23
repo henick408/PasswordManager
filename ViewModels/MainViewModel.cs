@@ -11,20 +11,26 @@ public class MainViewModel : ViewModelBase
     private readonly AuthService authService;
     private readonly PasswordService passwordService;
     
-    private string selectedCategory;
+    private string? selectedCategory;
     private ObservableCollection<PasswordControlViewModel> passwords;
+    private ObservableCollection<PasswordControlViewModel> passwordsFromDatabase;
     private PasswordControlViewModel? selectedPassword;
-    private bool isPasswordSelected;
     
     public IList<string> Categories { get; } = new List<string>
     {
         "Social", "Work", "Finance", "Shopping", "Entertainment", "Other"
     };
 
-    public string SelectedCategory
+    public string? SelectedCategory
     {
         get => selectedCategory;
-        set => SetField(ref selectedCategory, value);
+        set
+        {
+            if (SetField(ref selectedCategory, value))
+            {
+                Passwords = GetFilteredPasswords();
+            }
+        }
     }
 
     public PasswordControlViewModel? SelectedPassword
@@ -45,20 +51,38 @@ public class MainViewModel : ViewModelBase
     {
         get => passwords;
         set => SetField(ref passwords, value);
-    } 
+    }
+
+    public ObservableCollection<PasswordControlViewModel> PasswordsFromDatabase
+    {
+        get => passwordsFromDatabase;
+        set
+        {
+            if (SetField(ref passwordsFromDatabase, value))
+            {
+                Passwords = GetFilteredPasswords();
+            }
+        }
+    }
+    
+    private ObservableCollection<PasswordControlViewModel> GetFilteredPasswords()
+    {
+        return SelectedCategory is null
+            ? PasswordsFromDatabase
+            : new ObservableCollection<PasswordControlViewModel>(
+                PasswordsFromDatabase.Where(p => p.PasswordEntry.Category == SelectedCategory));
+    }
 
     public MainViewModel(AuthService authService, PasswordService passwordService)
     {
         this.authService = authService;
         this.passwordService = passwordService;
-        // Passwords = new ObservableCollection<PasswordControlViewModel>(entries.Select(pass => new PasswordControlViewModel(pass))
-        //     .ToList());
     }
 
     public async Task ListPasswords()
     {
         IList<PasswordEntry> passwordsEntries = await passwordService.GetPasswords();
-        Passwords = new ObservableCollection<PasswordControlViewModel>(
+        PasswordsFromDatabase = new ObservableCollection<PasswordControlViewModel>(
             passwordsEntries.Select(entry => new PasswordControlViewModel(entry))
             );
     }
@@ -110,6 +134,11 @@ public class MainViewModel : ViewModelBase
             MessageBox.Show("Password deleted");
             SelectedPassword = null;
         }
+    }
+
+    public void ClearSelectedCategory()
+    {
+        this.SelectedCategory = null;
     }
     
 }

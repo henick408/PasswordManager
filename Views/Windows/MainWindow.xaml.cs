@@ -16,10 +16,9 @@ public partial class MainWindow : Window
         this.DataContext = this.viewModel;
     }
 
-    private async void ListPasswordsButton_OnClick(object sender, RoutedEventArgs e)
+    private async void AllPasswordsButton_OnClick(object sender, RoutedEventArgs e)
     {
-        // to jest tymczasowe, tak naprawde ten przycisk ma usunąć filtry
-        await viewModel.ListPasswords();
+        viewModel.ClearSelectedCategory();
     }
 
     private void PasswordListBox_PreviewMouseDown(object sender, MouseButtonEventArgs e)
@@ -47,6 +46,7 @@ public partial class MainWindow : Window
     private async void SignInButton_OnClick(object sender, RoutedEventArgs e)
     {
         await viewModel.SignIn();
+        await viewModel.ListPasswords();
     }
 
     private async void CreatePassword_OnClick(object sender, RoutedEventArgs e)

@@ -36,10 +36,6 @@ public partial class AddEditPasswordDialog : Window
 
     private void SaveChangesButton_OnClick(object sender, RoutedEventArgs e)
     {
-        // viewModel.Password.Password = HiddenPasswordBox.Password;
-        // viewModel.Password.Category = viewModel.SelectedCategory;
-        // PasswordEntry = viewModel.Password;
-        // DialogResult = true;
         string name = NameBox.Text;
         string url = UrlBox.Text.Trim();
         string username = UsernameBox.Text.Trim();

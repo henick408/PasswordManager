@@ -70,7 +70,7 @@
                                 Padding="10 10"
                                 Background="Transparent"
                                 BorderBrush="Transparent"
-                                Click="ListPasswordsButton_OnClick"/>
+                                Click="AllPasswordsButton_OnClick"/>
                     </StackPanel>
                     
                     <DockPanel>
@@ -79,6 +79,7 @@
                             FontWeight="SemiBold"/>
                         <ListView Background="Transparent"
                                   ItemsSource="{Binding Categories}"
+                                  SelectedItem="{Binding SelectedCategory}"
                                   FontSize="14">
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="ListViewItem">
