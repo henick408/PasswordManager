@@ -1,5 +1,4 @@
 using PasswordManager.CustomExceptions;
-using PasswordManager.Dto;
 using PasswordManager.Model;
 using Supabase.Postgrest;
 

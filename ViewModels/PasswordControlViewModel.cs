@@ -15,7 +15,7 @@ public class PasswordControlViewModel : ViewModelBase
 
     public PasswordControlViewModel(PasswordEntry passwordEntry)
     {
-        this.PasswordEntry = passwordEntry;
+        PasswordEntry = passwordEntry;
     }
     
 }

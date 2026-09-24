@@ -7,7 +7,7 @@ public class UserRequest
 
     public UserRequest(string email, string password)
     {
-        this.Email = email;
-        this.Password = password;
+        Email = email;
+        Password = password;
     }
 }

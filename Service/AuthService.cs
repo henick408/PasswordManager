@@ -9,34 +9,27 @@ namespace PasswordManager.Service;
 
 public class AuthService(Supabase.Client supabase, UserSession userSession)
 {
-    public async Task<Session?> SignUp(UserRequest request)
+    public async Task SignUp(UserRequest request)
     {
         Session? session = await supabase.Auth.SignUp(request.Email, request.Password);
         if (session is not null)
         {
             userSession.EncryptionHash = HashCredentials(request);
         }
-        return session;
     }
 
-    public async Task<Session?> SignIn(UserRequest request)
+    public async Task SignIn(UserRequest request)
     {
         Session? session = await supabase.Auth.SignIn(request.Email, request.Password);
         if (session is not null)
         {
             userSession.EncryptionHash = HashCredentials(request);
         }
-        return session;
     }
 
     public Task SignOut()
     {
         return supabase.Auth.SignOut();
-    }
-
-    public User? GetCurrentUser()
-    {
-        return supabase.Auth.CurrentUser ?? throw new UnauthenticatedUserException();
     }
 
     private byte[] HashCredentials(UserRequest request)

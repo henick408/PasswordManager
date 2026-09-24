@@ -15,7 +15,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         this.viewModel = viewModel;
         this.loginRegisterScreenFactory = loginRegisterScreenFactory;
-        this.DataContext = this.viewModel;
+        DataContext = this.viewModel;
         Loaded += MainWindow_OnLoaded;
     }
 
@@ -49,12 +49,6 @@ public partial class MainWindow : Window
         }
 
         e.Handled = true;
-    }
-
-    private async void SignInButton_OnClick(object sender, RoutedEventArgs e)
-    {
-        await viewModel.SignIn();
-        await viewModel.ListPasswords();
     }
 
     private async void CreatePassword_OnClick(object sender, RoutedEventArgs e)

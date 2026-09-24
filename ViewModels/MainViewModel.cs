@@ -108,14 +108,7 @@ public class MainViewModel : ViewModelBase
             passwordsEntries.Select(entry => new PasswordControlViewModel(entry))
             );
     }
-
-    public async Task SignIn()
-    {
-        var user = new UserRequest("test@test.com", "testtest");
-        // sign in jest tutaj tylko tymczasowo
-        await authService.SignIn(user);
-        MessageBox.Show("Signed in");
-    }
+    
 
     public async Task CreatePassword()
     {
@@ -155,8 +148,8 @@ public class MainViewModel : ViewModelBase
     }
 
     public void ClearSelectedCategory()
-    {
-        this.SelectedCategory = null;
+    { 
+        SelectedCategory = null;
     }
 
     public Task LogOut()

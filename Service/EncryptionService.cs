@@ -1,4 +1,3 @@
-using System.Net.NetworkInformation;
 using System.Security.Cryptography;
 using System.Text;
 using PasswordManager.CustomExceptions;

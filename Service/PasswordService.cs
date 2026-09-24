@@ -1,5 +1,3 @@
-using System.Text.Encodings.Web;
-using System.Text.Json;
 using PasswordManager.Dto;
 using PasswordManager.Repository;
 using PasswordManager.Model;
@@ -31,11 +29,10 @@ public class PasswordService(PasswordRepository passwordRepository, EncryptionSe
         return encryptionService.Decrypt(insertedPassword);
     }
 
-    public async Task<PasswordEntry> UpdatePassword(PasswordEntry passwordEntry)
+    public async Task UpdatePassword(PasswordEntry passwordEntry)
     {
-        EncryptedPassword encryptedPassword = encryptionService.Encrypt(passwordEntry);
-        EncryptedPassword updatedPassword = await passwordRepository.UpdatePassword(encryptedPassword);
-        return encryptionService.Decrypt(updatedPassword);
+        EncryptedPassword encryptedPassword = encryptionService.Encrypt(passwordEntry); 
+        await passwordRepository.UpdatePassword(encryptedPassword);
     }
 
     public Task DeletePassword(PasswordEntry passwordEntry)
