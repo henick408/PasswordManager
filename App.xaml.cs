@@ -1,10 +1,8 @@
-using System.Configuration;
-using System.Data;
-using System.Drawing;
-using System.Net.WebSockets;
 using System.Windows;
 using Microsoft.Extensions.DependencyInjection;
 using PasswordManager.Config;
+using PasswordManager.Service;
+using PasswordManager.Views.Windows;
 using Supabase.Realtime.Exceptions;
 
 namespace PasswordManager;
@@ -23,16 +21,13 @@ public partial class App : Application
         catch (RealtimeException ex) 
             when (ex.InnerException.ToString().Contains("WebSocketException"))
         {
-            var result = MessageBox.Show("Connection problems. Could not connect to the database",
+            var result = MessageBox.Show("Connection problems. Could not connect to the server",
                 "Cannot connect",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error
-                );
-            if (result == MessageBoxResult.OK)
-            {
-                Shutdown(1);
-                return;
-            }
+                ); 
+            Shutdown(1); 
+            return;
         }
 
         services.AddServices();
@@ -42,7 +37,8 @@ public partial class App : Application
         
         ServiceProvider serviceProvider = services.BuildServiceProvider();
 
-        MainWindow mainWindow = serviceProvider.GetRequiredService<MainWindow>();
+        //MainWindow mainWindow = serviceProvider.GetRequiredService<MainWindow>();
+        var mainWindow = new LoginRegisterScreen(serviceProvider.GetRequiredService<AuthService>());
         mainWindow.Show();
     }
 }

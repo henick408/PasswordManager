@@ -3,7 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using PasswordManager.ViewModels;
 
-namespace PasswordManager;
+namespace PasswordManager.Views.Windows;
 
 public partial class MainWindow : Window
 {

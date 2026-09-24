@@ -111,11 +111,7 @@ public class MainViewModel : ViewModelBase
 
     public async Task SignIn()
     {
-        var user = new UserRequest
-        {
-            Email = "test@test.com",
-            Password = "testtest"
-        };
+        var user = new UserRequest("test@test.com", "testtest");
         // sign in jest tutaj tylko tymczasowo
         await authService.SignIn(user);
         MessageBox.Show("Signed in");

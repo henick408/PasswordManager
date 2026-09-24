@@ -3,6 +3,26 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:PasswordManager">
     <Application.Resources>
-         
+        <ControlTemplate x:Key="NoHeaderExpanderTemplate"
+                         TargetType="{x:Type Expander}">
+
+            <ContentPresenter x:Name="ExpanderContent"
+                              ContentSource="Content"
+                              Visibility="Collapsed"/>
+
+            <ControlTemplate.Triggers>
+
+                <Trigger Property="IsExpanded"
+                         Value="True">
+
+                    <Setter TargetName="ExpanderContent"
+                            Property="Visibility"
+                            Value="Visible"/>
+
+                </Trigger>
+
+            </ControlTemplate.Triggers>
+
+        </ControlTemplate>
     </Application.Resources>
 </Application>
