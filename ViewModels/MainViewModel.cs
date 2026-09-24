@@ -158,5 +158,10 @@ public class MainViewModel : ViewModelBase
     {
         this.SelectedCategory = null;
     }
+
+    public Task LogOut()
+    {
+        return authService.SignOut();
+    }
     
 }

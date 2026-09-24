@@ -78,7 +78,8 @@
                     </StackPanel.Resources>
                     <Button Content="H Sign in"
                             Click="SignInButton_OnClick"/>
-                    <Button Content="H Logout"/>
+                    <Button Content="H Logout"
+                            Click="LogoutButton_OnClick"/>
                 </StackPanel>
                 
             </Grid>

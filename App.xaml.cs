@@ -32,14 +32,16 @@ public partial class App : Application
 
         services.AddServices();
         services.AddRepositories();
-        services.AddSingleton<MainWindow>();
+        services.AddTransient<MainWindow>();
+        services.AddTransient<LoginRegisterScreen>();
+        services.AddSingleton<Func<MainWindow>>(sp => () => sp.GetRequiredService<MainWindow>());
+        services.AddSingleton<Func<LoginRegisterScreen>>(sp => () => sp.GetRequiredService<LoginRegisterScreen>());
         services.AddViewModels();
-        
+
         ServiceProvider serviceProvider = services.BuildServiceProvider();
 
-        //MainWindow mainWindow = serviceProvider.GetRequiredService<MainWindow>();
-        var mainWindow = new LoginRegisterScreen(serviceProvider.GetRequiredService<AuthService>());
-        mainWindow.Show();
+        var loginWindow = serviceProvider.GetRequiredService<LoginRegisterScreen>();
+        loginWindow.Show();
     }
 }
 

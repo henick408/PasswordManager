@@ -9,11 +9,13 @@ public partial class LoginRegisterScreen : Window
 {
     private bool isRegister;
     private readonly AuthService authService;
+    private readonly Func<MainWindow> mainWindowFactory;
     
-    public LoginRegisterScreen(AuthService authService)
+    public LoginRegisterScreen(AuthService authService, Func<MainWindow> mainWindowFactory)
     {
         InitializeComponent();
         this.authService = authService;
+        this.mainWindowFactory = mainWindowFactory;
     }
 
     private void LoginRegisterSwitch_OnClick(object sender, RoutedEventArgs e)
@@ -22,7 +24,8 @@ public partial class LoginRegisterScreen : Window
         RegisterExpander.IsExpanded = isRegister;
         AccountQuestionText.Text = isRegister ? "Already have an account? " : "Don't have an account? ";
         AccountActionText.Text = isRegister ? "Sign in" : "Create one";
-        HeaderTextBlock.Text = isRegister ? "Create account" : "Sign in";
+        HeaderTextBlock.Text = isRegister ? "Create your account" : "Sign in";
+        SignInButton.Content = isRegister ? "Create Account" : "Sign in";
     }
 
     private async void SignInButton_OnClick(object sender, RoutedEventArgs e)
@@ -59,6 +62,11 @@ public partial class LoginRegisterScreen : Window
             return;
         }
         MessageBox.Show("Signed in successfully", "Signed in", MessageBoxButton.OK, MessageBoxImage.None);
+
+        MainWindow mainWindow = mainWindowFactory();
+        Application.Current.MainWindow = mainWindow;
+        mainWindow.Show();
+        Close();
     }
 
     private async Task<bool> SignIn(UserRequest request)
