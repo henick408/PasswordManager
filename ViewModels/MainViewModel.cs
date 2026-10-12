@@ -14,7 +14,14 @@ public class MainViewModel : ViewModelBase
     private ObservableCollection<PasswordControlViewModel> passwordsFromDatabase;
     private PasswordControlViewModel? selectedPassword;
     private string passwordSearch;
-    
+
+
+    public MainViewModel() { }
+    public MainViewModel(AuthService authService, PasswordService passwordService)
+    {
+        this.authService = authService;
+        this.passwordService = passwordService;
+    }
     
     public IList<string> Categories { get; } = new List<string>
     {

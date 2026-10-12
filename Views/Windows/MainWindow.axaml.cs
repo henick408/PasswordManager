@@ -8,7 +8,12 @@ namespace PasswordManager.Views.Windows;
 public partial class MainWindow : Window
 {
     private readonly MainViewModel viewModel;
-    
+
+
+    public MainWindow()
+    {
+        InitializeComponent();
+    }
     
     public MainWindow(MainViewModel vm)
     {

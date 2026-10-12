@@ -17,8 +17,8 @@
     <StackPanel VerticalAlignment="Center"
                 HorizontalAlignment="Center"
                 Spacing="16">
-                <Button Content="Hello"
-                        Click="Button_OnClick"/>
-                <TextBlock Text="{Binding Passwords[0].PasswordEntry.Name}"/>
-        </StackPanel>
+        <Button Content="Hello"
+                Click="Button_OnClick"/>
+        <TextBlock Text="{Binding Passwords[0].PasswordEntry.Name}"/>
+    </StackPanel>
 </Window>
