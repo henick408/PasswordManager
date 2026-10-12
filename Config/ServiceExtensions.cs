@@ -10,7 +10,15 @@ namespace PasswordManager.Config;
 
 public static class ServiceExtensions
 {
-    public static async Task ConfigureSupabase(this IServiceCollection services)
+    public static void AddDependencies(this IServiceCollection services)
+    {
+        services.ConfigureSupabase();
+        services.AddRepositories();
+        services.AddServices();
+        services.AddViewModels();
+    }
+    
+    public static void ConfigureSupabase(this IServiceCollection services)
     {
         var configuration = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json", optional: false)
@@ -39,8 +47,7 @@ public static class ServiceExtensions
                     break;
             }
         });
-
-        await supabaseClient.InitializeAsync();
+        
         services.AddSingleton(supabaseClient);
     }
 
