@@ -15,7 +15,12 @@
         <vm:MainViewModel />
     </Design.DataContext>
         
-    <Grid ColumnDefinitions="180, 200, Auto">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="180"/>
+            <ColumnDefinition MinWidth="200"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
         
         <Border Grid.Column="0"
                 Background="LightGray">
@@ -68,7 +73,7 @@
                             <Setter Property="BorderBrush" Value="Transparent"/>
                             <Setter Property="CornerRadius" Value="8"/>
                         </Style>
-                    </StackPanel.Styles>
+                    </StackPanel.Styles>    
                     <Button Content="H Settings"/>
                     <Button Content="H Logout"
                             Click="LogoutButton_OnClick"/>
@@ -76,6 +81,109 @@
                 
             </Grid>
         </Border>
+        
+        <Expander Grid.Column="2"
+                  VerticalAlignment="Stretch"
+                  ExpandDirection="Left"
+                  
+                  IsExpanded="{Binding IsPasswordSelected, Mode=OneWay}">
+            <Border Background="LightGray"
+                    Width="320"
+                    Padding="12"
+                    DataContext="{Binding SelectedPassword?.PasswordEntry}">
+            <Grid RowDefinitions="120,*">
+
+                <StackPanel Grid.Row="0">
+                    <TextBlock Text="{Binding Name}"
+                               FontSize="22"
+                               FontWeight="Bold"
+                               Margin="0 0 0 20"/>
+                    <Grid ColumnDefinitions="*,*">
+
+                        <Border Grid.Column="0"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center"
+                                Background="#FF9370DB"
+                                Padding="6"
+                                CornerRadius="4">
+                            <TextBlock Text="{Binding Category}"
+                                       VerticalAlignment="Center"
+                                       FontSize="16"
+                                       HorizontalAlignment="Left"/>
+                        </Border>
+                        <StackPanel Grid.Column="1"
+                                    Orientation="Horizontal"
+                                    HorizontalAlignment="Right">
+                            
+                            <StackPanel.Styles>
+                                <Style Selector="Button">
+                                    <Setter Property="Height" Value="30"/>
+                                    <Setter Property="FontSize" Value="16"/>
+                                    <Setter Property="Padding" Value="8 0"/>
+                                </Style>
+                            </StackPanel.Styles>
+                            
+                            <Button Content="H Edit"
+                                    Margin="0 0 4 0"
+                                    Click="EditPassword_OnClick"/>
+                            <Button Content="H Delete"
+                                    Click="DeletePassword_OnClick"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+                
+                <StackPanel Grid.Row="1"
+                            Spacing="8">
+                    <StackPanel.Styles>
+                        <Style Selector="Label">
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                            <!-- <Setter Property="Margin" Value="0 0 0 4"/> -->
+                        </Style>
+                        <Style Selector="StackPanel">
+                            <Setter Property="Spacing" Value="4"/>
+                        </Style>
+                        <Style Selector="TextBox">
+                            <Setter Property="Padding" Value="4 8"/>
+                            <Setter Property="IsReadOnly" Value="True"/>
+                            <!-- <Setter Property="Margin" Value="0 0 0 8"/> -->
+                        </Style>
+                    </StackPanel.Styles>
+                    
+                    <StackPanel>
+                        <Label Content="H URL"/>
+                        <TextBox Text="{Binding Url}"/>
+                    </StackPanel>
+                    
+                    <StackPanel>
+                        <Label Content="H USERNAME"/>
+                        <TextBox Text="{Binding Username}"/>
+                    </StackPanel>
+                    
+                    <StackPanel>
+                        <Label Content="H PASSWORD"/>
+                        <TextBox Name="PasswordTextBox"
+                                 Text="{Binding Password}"
+                                 PasswordChar="*"
+                                 RevealPassword="False">
+                            <TextBox.InnerRightContent>
+                                <Button Content="H"
+                                        Click="RevealPassword_OnClick"/>
+                            </TextBox.InnerRightContent>
+                        </TextBox>
+                    </StackPanel>
+                    
+                    <StackPanel>
+                        <Label Content="H NOTES"/>
+                        <TextBox Text="{Binding Notes}"
+                                 Height="200"
+                                 AcceptsReturn="True"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                 TextWrapping="WrapWithOverflow"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </Border>
+        </Expander>
         
     </Grid>
 </Window>

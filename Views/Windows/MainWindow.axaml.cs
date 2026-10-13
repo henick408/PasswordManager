@@ -38,4 +38,19 @@ public partial class MainWindow : Window
     {
         throw new NotImplementedException();
     }
+
+    private void EditPassword_OnClick(object? sender, RoutedEventArgs e)
+    {
+        throw new NotImplementedException();
+    }
+
+    private void DeletePassword_OnClick(object? sender, RoutedEventArgs e)
+    {
+        throw new NotImplementedException();
+    }
+
+    private void RevealPassword_OnClick(object? sender, RoutedEventArgs e)
+    {
+        PasswordTextBox.RevealPassword = !PasswordTextBox.RevealPassword;
+    }
 }
