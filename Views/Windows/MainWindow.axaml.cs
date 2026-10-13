@@ -28,4 +28,14 @@ public partial class MainWindow : Window
         await viewModel.ListPasswords();
         await viewModel.authService.SignOut();
     }
+
+    private void AllPasswordsButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        throw new NotImplementedException();
+    }
+
+    private void LogoutButton_OnClick(object? sender, RoutedEventArgs e)
+    {
+        throw new NotImplementedException();
+    }
 }

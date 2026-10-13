@@ -31,12 +31,13 @@
                         <Label Content="VAULT"
                                Padding="10 8"/>
                         <Button Content="H All Passwords"
-                                HorizontalContentAlignment="Left"
+                                HorizontalAlignment="Stretch"
                                 FontSize="12"
                                 Padding="10 10"
                                 Background="Transparent"
-                                BorderBrush="Transparent"/>
-                        <!-- d:Click="AllPasswordsButton_OnClick"/> -->
+                                BorderBrush="Transparent"
+                                CornerRadius="8"
+                                Click="AllPasswordsButton_OnClick"/>
                     </StackPanel>
                 </StackPanel>
                 
@@ -60,16 +61,17 @@
                             VerticalAlignment="Bottom">
                     <StackPanel.Styles>
                         <Style Selector="Button">
-                            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                            <Setter Property="HorizontalAlignment" Value="Stretch"/>
                             <Setter Property="FontSize" Value="12"/>
                             <Setter Property="Padding" Value="10"/>
                             <Setter Property="Background" Value="Transparent"/>
                             <Setter Property="BorderBrush" Value="Transparent"/>
+                            <Setter Property="CornerRadius" Value="8"/>
                         </Style>
                     </StackPanel.Styles>
                     <Button Content="H Settings"/>
-                    <Button Content="H Logout"/>
-                            <!-- d:Click="LogoutButton_OnClick"/> -->
+                    <Button Content="H Logout"
+                            Click="LogoutButton_OnClick"/>
                 </StackPanel>
                 
             </Grid>
