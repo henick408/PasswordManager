@@ -33,7 +33,7 @@ public class MainViewModel : ViewModelBase
         get => passwordSearch;
         set
         {
-            if (SetField(ref passwordSearch, value))
+            if (SetProperty(ref passwordSearch, value))
             {
                 Passwords = GetFilteredPasswords();
             }
@@ -45,7 +45,7 @@ public class MainViewModel : ViewModelBase
         get => selectedCategory;
         set
         {
-            if (SetField(ref selectedCategory, value))
+            if (SetProperty(ref selectedCategory, value))
             {
                 Passwords = GetFilteredPasswords();
             }
@@ -57,7 +57,7 @@ public class MainViewModel : ViewModelBase
         get => selectedPassword;
         set
         {
-            if (SetField(ref selectedPassword, value))
+            if (SetProperty(ref selectedPassword, value))
             {
                 OnPropertyChanged(nameof(IsPasswordSelected));
             }
@@ -69,7 +69,7 @@ public class MainViewModel : ViewModelBase
     public ObservableCollection<PasswordControlViewModel> Passwords
     {
         get => passwords;
-        set => SetField(ref passwords, value);
+        set => SetProperty(ref passwords, value);
     }
 
     public ObservableCollection<PasswordControlViewModel> PasswordsFromDatabase
@@ -77,7 +77,7 @@ public class MainViewModel : ViewModelBase
         get => passwordsFromDatabase;
         set
         {
-            if (SetField(ref passwordsFromDatabase, value))
+            if (SetProperty(ref passwordsFromDatabase, value))
             {
                 Passwords = GetFilteredPasswords();
             }

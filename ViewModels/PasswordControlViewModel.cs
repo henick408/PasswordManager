@@ -10,9 +10,11 @@ public class PasswordControlViewModel : ViewModelBase
     public PasswordEntry PasswordEntry
     {
         get => passwordEntry;
-        set => SetField(ref passwordEntry, value);
+        set => SetProperty(ref passwordEntry, value);
     }
 
+    public PasswordControlViewModel() {}
+    
     public PasswordControlViewModel(PasswordEntry passwordEntry)
     {
         PasswordEntry = passwordEntry;
