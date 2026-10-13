@@ -14,8 +14,8 @@ public class MainViewModel : ViewModelBase
     private ObservableCollection<PasswordControlViewModel> passwordsFromDatabase;
     private PasswordControlViewModel? selectedPassword;
     private string passwordSearch;
-
-
+    
+    // Mock data for AXAML preview
     public MainViewModel() { }
     public MainViewModel(AuthService authService, PasswordService passwordService)
     {
