@@ -56,6 +56,7 @@ public static class ServiceExtensions
         services.AddTransient<IAuthService, AuthService>();
         services.AddTransient<IEncryptionService, EncryptionService>();
         services.AddTransient<IPasswordService, PasswordService>();
+        services.AddTransient<IDialogService, DialogService>();
     }
 
     public static void AddRepositories(this IServiceCollection services)
@@ -67,5 +68,6 @@ public static class ServiceExtensions
     {
         services.AddTransient<MainViewModel>();
         services.AddTransient<PasswordControlViewModel>();
+        services.AddTransient<AddEditPasswordViewModel>();
     }
 }
