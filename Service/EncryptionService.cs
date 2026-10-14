@@ -6,15 +6,8 @@ using PasswordManager.Model;
 
 namespace PasswordManager.Service;
 
-public class EncryptionService
+public class EncryptionService(UserSession session) : IEncryptionService
 {
-    private readonly UserSession session;
-
-    public EncryptionService(UserSession session)
-    {
-        this.session = session;
-    }
-
     public EncryptedPassword Encrypt(PasswordEntry decryptedPassword)
     {
         EnsureThatLoggedIn();

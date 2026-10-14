@@ -1,13 +1,14 @@
 ﻿using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using PasswordManager.Dto;
 using PasswordManager.Service;
 
 namespace PasswordManager.ViewModels;
 
-public class MainViewModel : ViewModelBase
+public partial class MainViewModel : ViewModelBase
 {
-    public readonly AuthService authService;
-    private readonly PasswordService passwordService;
+    public readonly IAuthService authService;
+    private readonly IPasswordService passwordService;
     
     private string? selectedCategory;
     private ObservableCollection<PasswordControlViewModel> passwords;
@@ -17,7 +18,7 @@ public class MainViewModel : ViewModelBase
     
     // Mock data for AXAML preview
     public MainViewModel() { }
-    public MainViewModel(AuthService authService, PasswordService passwordService)
+    public MainViewModel(IAuthService authService, IPasswordService passwordService)
     {
         this.authService = authService;
         this.passwordService = passwordService;

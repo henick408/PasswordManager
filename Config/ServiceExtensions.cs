@@ -53,9 +53,9 @@ public static class ServiceExtensions
 
     public static void AddServices(this IServiceCollection services)
     {
-        services.AddTransient<AuthService>();
-        services.AddTransient<EncryptionService>();
-        services.AddTransient<PasswordService>();
+        services.AddTransient<IAuthService, AuthService>();
+        services.AddTransient<IEncryptionService, EncryptionService>();
+        services.AddTransient<IPasswordService, PasswordService>();
     }
 
     public static void AddRepositories(this IServiceCollection services)

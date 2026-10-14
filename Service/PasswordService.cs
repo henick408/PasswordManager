@@ -5,7 +5,7 @@ using PasswordManager.CustomExceptions;
 
 namespace PasswordManager.Service;
 
-public class PasswordService(PasswordRepository passwordRepository, EncryptionService encryptionService)
+public class PasswordService(PasswordRepository passwordRepository, EncryptionService encryptionService) : IPasswordService
 {
     public async Task<IList<PasswordEntry>> GetPasswords()
     {

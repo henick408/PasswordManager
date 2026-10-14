@@ -23,7 +23,7 @@ public partial class MainWindow : Window
 
     private async void Button_OnClick(object? sender, RoutedEventArgs e)
     {
-        await viewModel.authService.SignIn(new UserRequest("test@test.com", "testtest"));
+        await viewModel.authService.SignInAsync(new UserRequest("test@test.com", "testtest"));
         await viewModel.ListPasswords();
         await viewModel.authService.SignOut();
     }
