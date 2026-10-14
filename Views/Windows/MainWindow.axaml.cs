@@ -9,7 +9,6 @@ public partial class MainWindow : Window
 {
     private readonly MainViewModel viewModel;
 
-
     public MainWindow()
     {
         InitializeComponent();
@@ -29,9 +28,9 @@ public partial class MainWindow : Window
         await viewModel.authService.SignOut();
     }
 
-    private void AllPasswordsButton_OnClick(object? sender, RoutedEventArgs e)
+    private async void AllPasswordsButton_OnClick(object? sender, RoutedEventArgs e)
     {
-        throw new NotImplementedException();
+        await viewModel.ListPasswords();
     }
 
     private void LogoutButton_OnClick(object? sender, RoutedEventArgs e)
@@ -52,5 +51,10 @@ public partial class MainWindow : Window
     private void RevealPassword_OnClick(object? sender, RoutedEventArgs e)
     {
         PasswordTextBox.RevealPassword = !PasswordTextBox.RevealPassword;
+    }
+
+    private void CreatePassword_OnClick(object? sender, RoutedEventArgs e)
+    {
+        throw new NotImplementedException();
     }
 }

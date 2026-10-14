@@ -3,10 +3,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="using:PasswordManager.ViewModels"
+        xmlns:controls="using:PasswordManager.Views.UserControls"
         mc:Ignorable="d"
         x:Class="PasswordManager.Views.Windows.MainWindow"
         Title="MainWindow"
-        Width="1280" Height="780"
+        Width="1280" Height="780" MinWidth="700"
         x:DataType="vm:MainViewModel">
     
     <Design.DataContext>
@@ -42,7 +43,8 @@
                                 Background="Transparent"
                                 BorderBrush="Transparent"
                                 CornerRadius="8"
-                                Click="AllPasswordsButton_OnClick"/>
+                                Click="Button_OnClick"/>
+                        <!-- Ten nowy "Click" tylko do momentu zaimplementowania ekranu logowania -->
                     </StackPanel>
                 </StackPanel>
                 
@@ -82,11 +84,89 @@
             </Grid>
         </Border>
         
+        <Border Grid.Column="1">
+            <Grid RowDefinitions="70,*">
+
+                <Grid Grid.Row="0"
+                      Background="LightGray" ColumnDefinitions="*,Auto">
+
+                    <Border Grid.Column="0"
+                            Margin=" 8 16"
+                            CornerRadius="8"
+                            Background="#000050">
+                        <Grid ColumnDefinitions="36,*">
+                            <TextBlock Grid.Column="0"
+                                       Text="H"
+                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Center"
+                                       FontSize="20"
+                                       Foreground="DarkGray"/>
+                            <TextBox Grid.Column="1" 
+                                     BorderThickness="0"
+                                     Foreground="DarkGray"
+                                     Text="{Binding PasswordSearch, UpdateSourceTrigger=PropertyChanged}"
+                                     VerticalContentAlignment="Center"
+                                     FontSize="18"
+                                     Padding="16 0 0 0"
+                                     Background="Transparent"/>
+                        </Grid>
+                    </Border>
+                    
+                    <Button Grid.Column="1"
+                            Content="+ New"
+                            Height="40"
+                            FontSize="14"
+                            Margin="0 0 12 0"
+                            Padding="12 8"
+                            Click="CreatePassword_OnClick"/>
+                    
+                </Grid>
+                    <!-- 
+                        Będzie mozna też prawym przyciskiem dostać opcje:
+                        Kopiowanie username, kopiowanie hasła, popup hasła itd
+                    !-->
+                    <ListBox Grid.Row="1"
+                             Margin="16"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             ItemsSource="{Binding Passwords}"
+                             SelectedItem="{Binding SelectedPassword, Mode=TwoWay}"
+                             Background="Transparent"
+                             BorderThickness="0">
+                             <!-- d:PreviewMouseLeftButtonDown="PasswordListBox_PreviewMouseDown" -->
+                             <!-- d:PreviewMouseRightButtonDown="PasswordListBox_PreviewRightMouseDown"> -->
+                        <ListBox.Styles>
+                            
+                            <Style Selector="controls|PasswordControl">
+                                <Setter Property="Width" Value="160"/>
+                                <Setter Property="Height" Value="120"/>
+                                <Setter Property="FontSize" Value="16"/>
+                            </Style>
+                            
+                        </ListBox.Styles>
+                        
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel/>
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <controls:PasswordControl/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+
+                    </ListBox>
+                
+            </Grid>
+        </Border>
+        
         <Expander Grid.Column="2"
                   VerticalAlignment="Stretch"
                   ExpandDirection="Left"
-                  
-                  IsExpanded="{Binding IsPasswordSelected, Mode=OneWay}">
+                  IsExpanded="{Binding IsPasswordSelected, Mode=OneWay}"
+                  Theme="{StaticResource NoHeaderExpander}">
             <Border Background="LightGray"
                     Width="320"
                     Padding="12"

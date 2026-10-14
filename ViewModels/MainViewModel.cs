@@ -95,7 +95,7 @@ public class MainViewModel : ViewModelBase
 
         if (!string.IsNullOrEmpty(PasswordSearch))
         {
-            filtered = filtered.Where(password => password.PasswordEntry.Name.StartsWith(PasswordSearch, StringComparison.OrdinalIgnoreCase)).ToList();
+            filtered = filtered.Where(password => password.PasswordEntry.Name.Contains(PasswordSearch, StringComparison.OrdinalIgnoreCase)).ToList();
         }
 
         return new ObservableCollection<PasswordControlViewModel>(filtered);
