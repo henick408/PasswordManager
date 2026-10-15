@@ -121,11 +121,8 @@
                             Command="{Binding CreatePasswordCommand}"/>
                     
                 </Grid>
-                    <!-- 
-                        Będzie mozna też prawym przyciskiem dostać opcje:
-                        Kopiowanie username, kopiowanie hasła, popup hasła itd
-                    !-->
-                    <ListBox Grid.Row="1"
+                    <ListBox x:Name="PasswordList"
+                             Grid.Row="1"
                              Margin="16"
                              ScrollViewer.VerticalScrollBarVisibility="Auto"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
@@ -133,8 +130,6 @@
                              SelectedItem="{Binding SelectedPassword, Mode=TwoWay}"
                              Background="Transparent"
                              BorderThickness="0">
-                             <!-- d:PreviewMouseLeftButtonDown="PasswordListBox_PreviewMouseDown" -->
-                             <!-- d:PreviewMouseRightButtonDown="PasswordListBox_PreviewRightMouseDown"> -->
                         <ListBox.Styles>
                             
                             <Style Selector="controls|PasswordControl">
@@ -216,7 +211,6 @@
                     <StackPanel.Styles>
                         <Style Selector="Label">
                             <Setter Property="FontWeight" Value="SemiBold"/>
-                            <!-- <Setter Property="Margin" Value="0 0 0 4"/> -->
                         </Style>
                         <Style Selector="StackPanel">
                             <Setter Property="Spacing" Value="4"/>
@@ -224,7 +218,6 @@
                         <Style Selector="TextBox">
                             <Setter Property="Padding" Value="4 8"/>
                             <Setter Property="IsReadOnly" Value="True"/>
-                            <!-- <Setter Property="Margin" Value="0 0 0 8"/> -->
                         </Style>
                     </StackPanel.Styles>
                     
@@ -243,10 +236,10 @@
                         <TextBox Name="PasswordTextBox"
                                  Text="{Binding SelectedPassword?.PasswordEntry.Password}"
                                  PasswordChar="*"
-                                 RevealPassword="False">
+                                 RevealPassword="{Binding IsPasswordRevealed}">
                             <TextBox.InnerRightContent>
-                                <Button Content="H"
-                                        Click="RevealPassword_OnClick"/>
+                                <ToggleButton Content="H"
+                                        IsChecked="{Binding IsPasswordRevealed}"/>
                             </TextBox.InnerRightContent>
                         </TextBox>
                     </StackPanel>

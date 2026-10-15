@@ -1,5 +1,7 @@
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.VisualTree;
 using PasswordManager.Dto;
 using PasswordManager.ViewModels;
 
@@ -19,6 +21,10 @@ public partial class MainWindow : Window
         InitializeComponent();
         viewModel = vm;
         DataContext = viewModel;
+        PasswordList.AddHandler(
+            PointerPressedEvent,
+            PasswordList_PointerPressed,
+            RoutingStrategies.Tunnel);
     }
 
     private async void Button_OnClick(object? sender, RoutedEventArgs e)
@@ -38,13 +44,34 @@ public partial class MainWindow : Window
         throw new NotImplementedException();
     }
     
-    private void DeletePassword_OnClick(object? sender, RoutedEventArgs e)
+    private void PasswordList_PointerPressed(
+        object? sender,
+        PointerPressedEventArgs e)
     {
-        throw new NotImplementedException();
-    }
+        if (sender is not ListBox listBox)
+            return;
 
-    private void RevealPassword_OnClick(object? sender, RoutedEventArgs e)
-    {
-        PasswordTextBox.RevealPassword = !PasswordTextBox.RevealPassword;
+        var properties = e.GetCurrentPoint(listBox).Properties;
+
+        if (!properties.IsLeftButtonPressed)
+        {
+            e.Handled = true;
+            return;
+        }
+
+        var source = e.Source as Control;
+        var container = source?.FindAncestorOfType<ListBoxItem>();
+
+        if (container is not null)
+        {
+            listBox.SelectedItem = container.DataContext;
+            container.Focus();
+        }
+        else
+        {
+            listBox.SelectedItem = null;
+        }
+
+        e.Handled = true;
     }
 }
