@@ -22,7 +22,7 @@ public class DialogService : IDialogService
         AddEditPasswordDialog dialog = new(viewModel);
 
         bool saved = await dialog.ShowDialog<bool>(Owner);
-        return saved ? viewModel.Password : null;
+        return saved ? viewModel.PasswordEntry : null;
     }
 
     public async Task<bool> Confirm( string message, string title, Icon icon)

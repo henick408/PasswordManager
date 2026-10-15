@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PasswordGenerator;
 using PasswordManager.Dto;
 
 namespace PasswordManager.ViewModels;
@@ -8,7 +9,7 @@ public partial class AddEditPasswordViewModel : ObservableObject
 {
     
     [ObservableProperty]
-    public partial PasswordEntry Password { get; private set; }
+    public partial PasswordEntry PasswordEntry { get; private set; }
     
     [ObservableProperty]
     public partial IList<string> Categories { get; private set; }
@@ -68,7 +69,7 @@ public partial class AddEditPasswordViewModel : ObservableObject
         IsGeneratorExpanded = true;
         Categories = new List<string> { "Category1", "Category2", "Category3" };
         
-        Password = new PasswordEntry
+        PasswordEntry = new PasswordEntry
         {
             Name = "Name",
             Url = "Url",
@@ -81,7 +82,7 @@ public partial class AddEditPasswordViewModel : ObservableObject
     
     public AddEditPasswordViewModel(IList<string> categories, PasswordEntry? passwordEntry = null)
     {
-        Password = passwordEntry ?? new PasswordEntry();
+        PasswordEntry = passwordEntry ?? new PasswordEntry();
         Categories = categories;
     }
 
@@ -94,13 +95,17 @@ public partial class AddEditPasswordViewModel : ObservableObject
     [RelayCommand]
     public void GeneratePassword()
     {
-        throw new NotImplementedException();
+        Console.WriteLine(IsPasswordRevealed);
+        using var generator = new Password(IsLowercase, IsUppercase, IsNumerics, IsSpecialSigns, PasswordGeneratorLength);
+        Console.WriteLine(IsPasswordRevealed);
+        GeneratedPassword = generator.Next();
+        Console.WriteLine(IsPasswordRevealed);
     }
     
     [RelayCommand]
     public void FillRandomPassword()
     {
-        throw new NotImplementedException();
+        PasswordEntry = new PasswordEntry(PasswordEntry) { Password = GeneratedPassword };
     }
     
 }

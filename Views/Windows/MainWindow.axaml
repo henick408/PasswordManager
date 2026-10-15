@@ -235,11 +235,10 @@
                         <Label Content="H PASSWORD"/>
                         <TextBox Name="PasswordTextBox"
                                  Text="{Binding SelectedPassword?.PasswordEntry.Password}"
-                                 PasswordChar="*"
-                                 RevealPassword="{Binding IsPasswordRevealed}">
+                                 PasswordChar="*">
                             <TextBox.InnerRightContent>
                                 <ToggleButton Content="H"
-                                        IsChecked="{Binding IsPasswordRevealed}"/>
+                                              IsChecked="{Binding #PasswordTextBox.RevealPassword, Mode=TwoWay}"/>
                             </TextBox.InnerRightContent>
                         </TextBox>
                     </StackPanel>
