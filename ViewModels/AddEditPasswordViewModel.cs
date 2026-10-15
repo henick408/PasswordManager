@@ -1,7 +1,9 @@
+using Avalonia.Input.Platform;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PasswordGenerator;
 using PasswordManager.Dto;
+using PasswordManager.Utils;
 
 namespace PasswordManager.ViewModels;
 
@@ -87,13 +89,17 @@ public partial class AddEditPasswordViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public void CopyGeneratedPasswordToClipboard()
+    private async Task CopyGeneratedPasswordToClipboard()
     {
-        throw new NotImplementedException();
+        IClipboard? clipboard = ClipboardHelper.GetClipboard();
+        if (clipboard is not null)
+        {
+            await clipboard.SetTextAsync(GeneratedPassword);
+        }
     }
 
     [RelayCommand]
-    public void GeneratePassword()
+    private void GeneratePassword()
     {
         Console.WriteLine(IsPasswordRevealed);
         using var generator = new Password(IsLowercase, IsUppercase, IsNumerics, IsSpecialSigns, PasswordGeneratorLength);
@@ -103,7 +109,7 @@ public partial class AddEditPasswordViewModel : ObservableObject
     }
     
     [RelayCommand]
-    public void FillRandomPassword()
+    private void FillRandomPassword()
     {
         PasswordEntry = new PasswordEntry(PasswordEntry) { Password = GeneratedPassword };
     }

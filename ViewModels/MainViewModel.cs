@@ -126,7 +126,6 @@ public partial class MainViewModel : ViewModelBase
         {
             var createdPassword = await passwordService.CreatePassword(dialogPassword);
             await ListPasswords();
-            //MessageBox.Show("Password added");
             SelectedPassword = new PasswordControlViewModel(createdPassword);
         }
     }
@@ -134,14 +133,11 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private async Task UpdatePassword()
     {
-        //var dialog = new AddEditPasswordDialog(Categories, SelectedPassword!.PasswordEntry) {Owner = Application.Current.MainWindow};
         var dialogPassword = await dialogService.ShowAddEditPassword(Categories, new PasswordEntry(SelectedPassword!.PasswordEntry));
         if (dialogPassword is not null)
         {
-            //var selected = SelectedPassword;
             var updatedPassword = await passwordService.UpdatePassword(dialogPassword);
             await ListPasswords();
-            //MessageBox.Show("Password updated");
             SelectedPassword = new PasswordControlViewModel(updatedPassword);
         }
     }
@@ -149,13 +145,11 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private async Task DeletePassword()
     {
-        //var messageBoxResult = MessageBox.Show($"Delete {SelectedPassword!.PasswordEntry.Name}?\nThis action cannot be undone.", "Delete password", MessageBoxButton.YesNo, MessageBoxImage.Question);
         var messageBoxResult = await dialogService.Confirm($"Delete {SelectedPassword!.PasswordEntry.Name}?\nThis action cannot be undone.", "Delete password", Icon.Question);
         if (messageBoxResult)
         {
             await passwordService.DeletePassword(SelectedPassword.PasswordEntry);
             await ListPasswords();
-            //MessageBox.Show("Password deleted");
             SelectedPassword = null;
         }
     }
