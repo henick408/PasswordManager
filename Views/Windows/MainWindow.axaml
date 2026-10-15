@@ -206,7 +206,7 @@
                                     Margin="0 0 4 0"
                                     Command="{Binding UpdatePasswordCommand}"/>
                             <Button Content="H Delete"
-                                    Click="DeletePassword_OnClick"/>
+                                    Command="{Binding DeletePasswordCommand}"/>
                         </StackPanel>
                     </Grid>
                 </StackPanel>

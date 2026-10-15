@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MsBox.Avalonia.Enums;
 using PasswordManager.Dto;
 using PasswordManager.Service;
 
@@ -79,7 +80,7 @@ public partial class MainViewModel : ViewModelBase
         set => SetProperty(ref passwords, value);
     }
 
-    public ObservableCollection<PasswordControlViewModel> PasswordsFromDatabase
+    private ObservableCollection<PasswordControlViewModel> PasswordsFromDatabase
     {
         get => passwordsFromDatabase;
         set
@@ -118,7 +119,7 @@ public partial class MainViewModel : ViewModelBase
     
 
     [RelayCommand]
-    public async Task CreatePassword()
+    private async Task CreatePassword()
     {
         var dialogPassword = await dialogService.ShowAddEditPassword(Categories);
         if (dialogPassword is not null)
@@ -131,7 +132,7 @@ public partial class MainViewModel : ViewModelBase
     }
     
     [RelayCommand]
-    public async Task UpdatePassword()
+    private async Task UpdatePassword()
     {
         //var dialog = new AddEditPasswordDialog(Categories, SelectedPassword!.PasswordEntry) {Owner = Application.Current.MainWindow};
         var dialogPassword = await dialogService.ShowAddEditPassword(Categories, new PasswordEntry(SelectedPassword!.PasswordEntry));
@@ -145,17 +146,19 @@ public partial class MainViewModel : ViewModelBase
         }
     }
     
-    // public async Task DeletePassword()
-    // {
-    //     var messageBoxResult = MessageBox.Show($"Delete {SelectedPassword!.PasswordEntry.Name}?\nThis action cannot be undone.", "Delete password", MessageBoxButton.YesNo, MessageBoxImage.Question);
-    //     if (messageBoxResult == MessageBoxResult.Yes)
-    //     {
-    //         await passwordService.DeletePassword(SelectedPassword.PasswordEntry);
-    //         await ListPasswords();
-    //         MessageBox.Show("Password deleted");
-    //         SelectedPassword = null;
-    //     }
-    // }
+    [RelayCommand]
+    private async Task DeletePassword()
+    {
+        //var messageBoxResult = MessageBox.Show($"Delete {SelectedPassword!.PasswordEntry.Name}?\nThis action cannot be undone.", "Delete password", MessageBoxButton.YesNo, MessageBoxImage.Question);
+        var messageBoxResult = await dialogService.Confirm($"Delete {SelectedPassword!.PasswordEntry.Name}?\nThis action cannot be undone.", "Delete password", Icon.Question);
+        if (messageBoxResult)
+        {
+            await passwordService.DeletePassword(SelectedPassword.PasswordEntry);
+            await ListPasswords();
+            //MessageBox.Show("Password deleted");
+            SelectedPassword = null;
+        }
+    }
 
     public void ClearSelectedCategory()
     { 

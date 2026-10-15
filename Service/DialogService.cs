@@ -1,6 +1,8 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Enums;
 using PasswordManager.Dto;
 using PasswordManager.ViewModels;
 using PasswordManager.Views.Windows;
@@ -21,5 +23,12 @@ public class DialogService : IDialogService
 
         bool saved = await dialog.ShowDialog<bool>(Owner);
         return saved ? viewModel.Password : null;
+    }
+
+    public async Task<bool> Confirm( string message, string title, Icon icon)
+    {
+        var box = MessageBoxManager.GetMessageBoxStandard(title, message, ButtonEnum.OkCancel, icon);
+        var result = await box.ShowAsync();
+        return result == ButtonResult.Ok;
     }
 }
