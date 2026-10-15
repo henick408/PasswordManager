@@ -29,10 +29,11 @@ public class PasswordService(PasswordRepository passwordRepository, IEncryptionS
         return encryptionService.Decrypt(insertedPassword);
     }
 
-    public async Task UpdatePassword(PasswordEntry passwordEntry)
+    public async Task<PasswordEntry> UpdatePassword(PasswordEntry passwordEntry)
     {
         EncryptedPassword encryptedPassword = encryptionService.Encrypt(passwordEntry); 
-        await passwordRepository.UpdatePassword(encryptedPassword);
+        EncryptedPassword updatedPassword = await passwordRepository.UpdatePassword(encryptedPassword);
+        return encryptionService.Decrypt(updatedPassword);
     }
 
     public Task DeletePassword(PasswordEntry passwordEntry)

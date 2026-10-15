@@ -118,7 +118,7 @@
                             FontSize="14"
                             Margin="0 0 12 0"
                             Padding="12 8"
-                            Click="CreatePassword_OnClick"/>
+                            Command="{Binding CreatePasswordCommand}"/>
                     
                 </Grid>
                     <!-- 
@@ -169,12 +169,11 @@
                   Theme="{StaticResource NoHeaderExpander}">
             <Border Background="LightGray"
                     Width="320"
-                    Padding="12"
-                    DataContext="{Binding SelectedPassword?.PasswordEntry}">
+                    Padding="12">
             <Grid RowDefinitions="120,*">
 
                 <StackPanel Grid.Row="0">
-                    <TextBlock Text="{Binding Name}"
+                    <TextBlock Text="{Binding SelectedPassword?.PasswordEntry.Name}"
                                FontSize="22"
                                FontWeight="Bold"
                                Margin="0 0 0 20"/>
@@ -186,7 +185,7 @@
                                 Background="#FF9370DB"
                                 Padding="6"
                                 CornerRadius="4">
-                            <TextBlock Text="{Binding Category}"
+                            <TextBlock Text="{Binding SelectedPassword?.PasswordEntry.Category}"
                                        VerticalAlignment="Center"
                                        FontSize="16"
                                        HorizontalAlignment="Left"/>
@@ -205,7 +204,7 @@
                             
                             <Button Content="H Edit"
                                     Margin="0 0 4 0"
-                                    Click="EditPassword_OnClick"/>
+                                    Command="{Binding UpdatePasswordCommand}"/>
                             <Button Content="H Delete"
                                     Click="DeletePassword_OnClick"/>
                         </StackPanel>
@@ -231,18 +230,18 @@
                     
                     <StackPanel>
                         <Label Content="H URL"/>
-                        <TextBox Text="{Binding Url}"/>
+                        <TextBox Text="{Binding SelectedPassword?.PasswordEntry.Url}"/>
                     </StackPanel>
                     
                     <StackPanel>
                         <Label Content="H USERNAME"/>
-                        <TextBox Text="{Binding Username}"/>
+                        <TextBox Text="{Binding SelectedPassword?.PasswordEntry.Username}"/>
                     </StackPanel>
                     
                     <StackPanel>
                         <Label Content="H PASSWORD"/>
                         <TextBox Name="PasswordTextBox"
-                                 Text="{Binding Password}"
+                                 Text="{Binding SelectedPassword?.PasswordEntry.Password}"
                                  PasswordChar="*"
                                  RevealPassword="False">
                             <TextBox.InnerRightContent>
@@ -254,7 +253,7 @@
                     
                     <StackPanel>
                         <Label Content="H NOTES"/>
-                        <TextBox Text="{Binding Notes}"
+                        <TextBox Text="{Binding SelectedPassword?.PasswordEntry.Notes}"
                                  Height="200"
                                  AcceptsReturn="True"
                                  ScrollViewer.VerticalScrollBarVisibility="Auto"

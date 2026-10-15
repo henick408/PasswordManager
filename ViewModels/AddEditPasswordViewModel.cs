@@ -79,9 +79,9 @@ public partial class AddEditPasswordViewModel : ObservableObject
         };
     }
     
-    public AddEditPasswordViewModel(IList<string> categories, PasswordControlViewModel? passwordControlViewModel = null)
+    public AddEditPasswordViewModel(IList<string> categories, PasswordEntry? passwordEntry = null)
     {
-        Password = passwordControlViewModel?.PasswordEntry ?? new PasswordEntry();
+        Password = passwordEntry ?? new PasswordEntry();
         Categories = categories;
     }
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using PasswordManager.Dto;
 using PasswordManager.Service;
 
@@ -9,6 +10,7 @@ public partial class MainViewModel : ViewModelBase
 {
     public readonly IAuthService authService;
     private readonly IPasswordService passwordService;
+    private readonly IDialogService dialogService;
     
     private string? selectedCategory;
     private ObservableCollection<PasswordControlViewModel> passwords;
@@ -18,10 +20,11 @@ public partial class MainViewModel : ViewModelBase
     
     // Mock data for AXAML preview
     public MainViewModel() { }
-    public MainViewModel(IAuthService authService, IPasswordService passwordService)
+    public MainViewModel(IAuthService authService, IPasswordService passwordService, IDialogService dialogService)
     {
         this.authService = authService;
         this.passwordService = passwordService;
+        this.dialogService = dialogService;
     }
     
     public IList<string> Categories { get; } = new List<string>
@@ -40,6 +43,9 @@ public partial class MainViewModel : ViewModelBase
             }
         }
     }
+
+    [ObservableProperty]
+    public partial bool IsPasswordRevealed { get; set; }
 
     public string? SelectedCategory
     {
@@ -111,31 +117,34 @@ public partial class MainViewModel : ViewModelBase
     }
     
 
-    // public async Task CreatePassword()
-    // {
-    //     var dialog = new AddEditPasswordDialog(Categories) {Owner = Application.Current.MainWindow};
-    //     if (dialog.ShowDialog() == true)
-    //     {
-    //         var createdPassword = await passwordService.CreatePassword(dialog.PasswordEntry);
-    //         await ListPasswords();
-    //         MessageBox.Show("Password added");
-    //         SelectedPassword = new PasswordControlViewModel(createdPassword);
-    //     }
-    // }
-    //
-    // public async Task UpdatePassword()
-    // {
-    //     var dialog = new AddEditPasswordDialog(Categories, SelectedPassword!.PasswordEntry) {Owner = Application.Current.MainWindow};
-    //     if (dialog.ShowDialog() == true)
-    //     {
-    //         var selected = SelectedPassword;
-    //         await passwordService.UpdatePassword(dialog.PasswordEntry);
-    //         await ListPasswords();
-    //         MessageBox.Show("Password updated");
-    //         SelectedPassword = selected;
-    //     }
-    // }
-    //
+    [RelayCommand]
+    public async Task CreatePassword()
+    {
+        var dialogPassword = await dialogService.ShowAddEditPassword(Categories);
+        if (dialogPassword is not null)
+        {
+            var createdPassword = await passwordService.CreatePassword(dialogPassword);
+            await ListPasswords();
+            //MessageBox.Show("Password added");
+            SelectedPassword = new PasswordControlViewModel(createdPassword);
+        }
+    }
+    
+    [RelayCommand]
+    public async Task UpdatePassword()
+    {
+        //var dialog = new AddEditPasswordDialog(Categories, SelectedPassword!.PasswordEntry) {Owner = Application.Current.MainWindow};
+        var dialogPassword = await dialogService.ShowAddEditPassword(Categories, new PasswordEntry(SelectedPassword!.PasswordEntry));
+        if (dialogPassword is not null)
+        {
+            //var selected = SelectedPassword;
+            var updatedPassword = await passwordService.UpdatePassword(dialogPassword);
+            await ListPasswords();
+            //MessageBox.Show("Password updated");
+            SelectedPassword = new PasswordControlViewModel(updatedPassword);
+        }
+    }
+    
     // public async Task DeletePassword()
     // {
     //     var messageBoxResult = MessageBox.Show($"Delete {SelectedPassword!.PasswordEntry.Name}?\nThis action cannot be undone.", "Delete password", MessageBoxButton.YesNo, MessageBoxImage.Question);

@@ -25,7 +25,7 @@ public partial class MainWindow : Window
     {
         await viewModel.authService.SignInAsync(new UserRequest("test@test.com", "testtest"));
         await viewModel.ListPasswords();
-        await viewModel.authService.SignOut();
+        //await viewModel.authService.SignOut();
     }
 
     private async void AllPasswordsButton_OnClick(object? sender, RoutedEventArgs e)
@@ -37,12 +37,7 @@ public partial class MainWindow : Window
     {
         throw new NotImplementedException();
     }
-
-    private void EditPassword_OnClick(object? sender, RoutedEventArgs e)
-    {
-        throw new NotImplementedException();
-    }
-
+    
     private void DeletePassword_OnClick(object? sender, RoutedEventArgs e)
     {
         throw new NotImplementedException();
@@ -51,10 +46,5 @@ public partial class MainWindow : Window
     private void RevealPassword_OnClick(object? sender, RoutedEventArgs e)
     {
         PasswordTextBox.RevealPassword = !PasswordTextBox.RevealPassword;
-    }
-
-    private void CreatePassword_OnClick(object? sender, RoutedEventArgs e)
-    {
-        throw new NotImplementedException();
     }
 }
