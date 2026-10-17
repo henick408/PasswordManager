@@ -114,10 +114,9 @@
                     
                     <Button Grid.Column="1"
                             Content="+ New"
-                            Height="40"
                             FontSize="14"
                             Margin="0 0 12 0"
-                            Padding="12 8"
+                            Padding=" 14 10"
                             Command="{Binding CreatePasswordCommand}"/>
                     
                 </Grid>
@@ -133,9 +132,8 @@
                         <ListBox.Styles>
                             
                             <Style Selector="controls|PasswordControl">
-                                <Setter Property="Width" Value="160"/>
-                                <Setter Property="Height" Value="120"/>
-                                <Setter Property="FontSize" Value="16"/>
+                                <Setter Property="Width" Value="200"/>
+                                <Setter Property="Height" Value="100"/>
                             </Style>
                             
                         </ListBox.Styles>
@@ -178,7 +176,7 @@
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Center"
                                 Background="#FF9370DB"
-                                Padding="6"
+                                Padding="8"
                                 CornerRadius="4">
                             <TextBlock Text="{Binding SelectedPassword?.PasswordEntry.Category}"
                                        VerticalAlignment="Center"
@@ -191,9 +189,8 @@
                             
                             <StackPanel.Styles>
                                 <Style Selector="Button">
-                                    <Setter Property="Height" Value="30"/>
                                     <Setter Property="FontSize" Value="16"/>
-                                    <Setter Property="Padding" Value="8 0"/>
+                                    <Setter Property="Padding" Value="8"/>
                                 </Style>
                             </StackPanel.Styles>
                             
@@ -233,14 +230,11 @@
                     
                     <StackPanel>
                         <Label Content="H PASSWORD"/>
-                        <TextBox Name="PasswordTextBox"
-                                 Text="{Binding SelectedPassword?.PasswordEntry.Password}"
-                                 PasswordChar="*">
-                            <TextBox.InnerRightContent>
-                                <ToggleButton Content="H"
-                                              IsChecked="{Binding #PasswordTextBox.RevealPassword, Mode=TwoWay}"/>
-                            </TextBox.InnerRightContent>
-                        </TextBox>
+                        <controls:PasswordBox Name="PasswordTextBox"
+                                 Password="{Binding SelectedPassword?.PasswordEntry.Password}"
+                                 Padding="0"
+                                 TextPadding="4 8">
+                        </controls:PasswordBox>
                     </StackPanel>
                     
                     <StackPanel>

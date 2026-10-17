@@ -7,7 +7,7 @@ using PasswordManager.Utils;
 
 namespace PasswordManager.ViewModels;
 
-public partial class AddEditPasswordViewModel : ObservableObject
+public partial class AddEditPasswordViewModel : ViewModelBase
 {
     
     [ObservableProperty]
@@ -20,7 +20,7 @@ public partial class AddEditPasswordViewModel : ObservableObject
     public partial bool IsGeneratorExpanded { get; set; }
 
     [ObservableProperty]
-    public partial int PasswordGeneratorLength { get; set; } = 16;
+    public partial double? PasswordGeneratorLength { get; set; } = 16;
 
     [ObservableProperty]
     public partial bool IsPasswordRevealed { get; set; }
@@ -32,40 +32,19 @@ public partial class AddEditPasswordViewModel : ObservableObject
     public partial bool IsLowercase { get; set; } = true;
     
     [ObservableProperty]
-    public partial bool IsUppercase { get; set; }
+    public partial bool IsUppercase { get; set; } = true;
     
     [ObservableProperty]
-    public partial bool IsNumerics { get; set; }
+    public partial bool IsNumerics { get; set; } = true;
     
     [ObservableProperty]
-    public partial bool IsSpecialSigns { get; set; }
+    public partial bool IsSpecialSigns { get; set; } = true;
     
     public bool IsLowercaseEnabled => !IsLowercase || GetCheckedCount() > 1;
     public bool IsUppercaseEnabled => !IsUppercase || GetCheckedCount() > 1;
     public bool IsNumericsEnabled => !IsNumerics || GetCheckedCount() > 1;
     public bool IsSpecialSignsEnabled => !IsSpecialSigns || GetCheckedCount() > 1;
     
-    partial void OnIsLowercaseChanged(bool value) => OnSelectionChanged();
-    partial void OnIsUppercaseChanged(bool value) => OnSelectionChanged();
-    partial void OnIsNumericsChanged(bool value) => OnSelectionChanged();
-    partial void OnIsSpecialSignsChanged(bool value) => OnSelectionChanged();
-    
-    private void OnSelectionChanged()
-    {
-        OnPropertyChanged(nameof(IsLowercaseEnabled));
-        OnPropertyChanged(nameof(IsUppercaseEnabled));
-        OnPropertyChanged(nameof(IsNumericsEnabled));
-        OnPropertyChanged(nameof(IsSpecialSignsEnabled));
-    }
-    
-    private int GetCheckedCount()
-    {
-        return (IsLowercase ? 1 : 0)
-               + (IsUppercase ? 1 : 0)
-               + (IsNumerics ? 1 : 0)
-               + (IsSpecialSigns ? 1 : 0);
-    }
-
     public AddEditPasswordViewModel()
     {
         IsGeneratorExpanded = true;
@@ -87,6 +66,38 @@ public partial class AddEditPasswordViewModel : ObservableObject
         PasswordEntry = passwordEntry ?? new PasswordEntry();
         Categories = categories;
     }
+    
+    partial void OnIsLowercaseChanged(bool value) => OnSelectionChanged();
+    partial void OnIsUppercaseChanged(bool value) => OnSelectionChanged();
+    partial void OnIsNumericsChanged(bool value) => OnSelectionChanged();
+    partial void OnIsSpecialSignsChanged(bool value) => OnSelectionChanged();
+
+    partial void OnPasswordGeneratorLengthChanged(double? value)
+    {
+        if (value is null || value < 8)
+        {
+            PasswordGeneratorLength = 8;
+            return;
+        }
+
+        if (value > 64) PasswordGeneratorLength = 64;
+    }
+    
+    private void OnSelectionChanged()
+    {
+        OnPropertyChanged(nameof(IsLowercaseEnabled));
+        OnPropertyChanged(nameof(IsUppercaseEnabled));
+        OnPropertyChanged(nameof(IsNumericsEnabled));
+        OnPropertyChanged(nameof(IsSpecialSignsEnabled));
+    }
+    
+    private int GetCheckedCount()
+    {
+        return (IsLowercase ? 1 : 0)
+               + (IsUppercase ? 1 : 0)
+               + (IsNumerics ? 1 : 0)
+               + (IsSpecialSigns ? 1 : 0);
+    }
 
     [RelayCommand]
     private async Task CopyGeneratedPasswordToClipboard()
@@ -101,11 +112,8 @@ public partial class AddEditPasswordViewModel : ObservableObject
     [RelayCommand]
     private void GeneratePassword()
     {
-        Console.WriteLine(IsPasswordRevealed);
-        using var generator = new Password(IsLowercase, IsUppercase, IsNumerics, IsSpecialSigns, PasswordGeneratorLength);
-        Console.WriteLine(IsPasswordRevealed);
+        using var generator = new Password(IsLowercase, IsUppercase, IsNumerics, IsSpecialSigns, (int)PasswordGeneratorLength!);
         GeneratedPassword = generator.Next();
-        Console.WriteLine(IsPasswordRevealed);
     }
     
     [RelayCommand]

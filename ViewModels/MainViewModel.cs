@@ -13,14 +13,41 @@ public partial class MainViewModel : ViewModelBase
     private readonly IPasswordService passwordService;
     private readonly IDialogService dialogService;
     
-    private string? selectedCategory;
-    private ObservableCollection<PasswordControlViewModel> passwords;
-    private ObservableCollection<PasswordControlViewModel> passwordsFromDatabase;
-    private PasswordControlViewModel? selectedPassword;
-    private string passwordSearch;
     
     // Mock data for AXAML preview
-    public MainViewModel() { }
+    public MainViewModel()
+    {
+        Passwords = new ObservableCollection<PasswordControlViewModel>
+        {
+            new(new PasswordEntry
+            {
+                Name = "Name1",
+                Url = "Url1",
+                Username = "Username1",
+                Password = "Password1",
+                Category = Categories[0],
+                Notes = "Notes1\nNotes1"
+            }),
+            new(new PasswordEntry
+            {
+                Name = "Name2",
+                Url = "Url2",
+                Username = "Username2",
+                Password = "Password2",
+                Category = Categories[1],
+                Notes = "Notes2\nNotes2"
+            }),
+            new(new PasswordEntry
+            {
+                Name = "Name3",
+                Url = "Url3",
+                Username = "Username3",
+                Password = "Password3",
+                Category = Categories[2],
+                Notes = "Notes3\nNotes3"
+            })
+        };
+    }
     public MainViewModel(IAuthService authService, IPasswordService passwordService, IDialogService dialogService)
     {
         this.authService = authService;
@@ -35,10 +62,10 @@ public partial class MainViewModel : ViewModelBase
 
     public string PasswordSearch
     {
-        get => passwordSearch;
+        get;
         set
         {
-            if (SetProperty(ref passwordSearch, value))
+            if (SetProperty(ref field, value))
             {
                 Passwords = GetFilteredPasswords();
             }
@@ -50,10 +77,10 @@ public partial class MainViewModel : ViewModelBase
 
     public string? SelectedCategory
     {
-        get => selectedCategory;
+        get;
         set
         {
-            if (SetProperty(ref selectedCategory, value))
+            if (SetProperty(ref field, value))
             {
                 Passwords = GetFilteredPasswords();
             }
@@ -62,10 +89,10 @@ public partial class MainViewModel : ViewModelBase
 
     public PasswordControlViewModel? SelectedPassword
     {
-        get => selectedPassword;
+        get;
         set
         {
-            if (SetProperty(ref selectedPassword, value))
+            if (SetProperty(ref field, value))
             {
                 OnPropertyChanged(nameof(IsPasswordSelected));
             }
@@ -74,18 +101,15 @@ public partial class MainViewModel : ViewModelBase
 
     public bool IsPasswordSelected => SelectedPassword != null;
 
-    public ObservableCollection<PasswordControlViewModel> Passwords
-    {
-        get => passwords;
-        set => SetProperty(ref passwords, value);
-    }
+    [ObservableProperty]
+    public partial ObservableCollection<PasswordControlViewModel> Passwords { get; set; }
 
     private ObservableCollection<PasswordControlViewModel> PasswordsFromDatabase
     {
-        get => passwordsFromDatabase;
+        get;
         set
         {
-            if (SetProperty(ref passwordsFromDatabase, value))
+            if (SetProperty(ref field, value))
             {
                 Passwords = GetFilteredPasswords();
             }
@@ -108,6 +132,7 @@ public partial class MainViewModel : ViewModelBase
 
         return new ObservableCollection<PasswordControlViewModel>(filtered);
     }
+    
 
     public async Task ListPasswords()
     {
@@ -154,14 +179,16 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    public void ClearSelectedCategory()
+    [RelayCommand]
+    private void ClearSelectedCategory()
     { 
         SelectedCategory = null;
     }
 
-    public Task LogOut()
+    [RelayCommand]
+    private async Task SignOut()
     {
-        return authService.SignOut();
+        await authService.SignOut();
     }
     
 }
