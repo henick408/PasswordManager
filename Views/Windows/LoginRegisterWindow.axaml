@@ -2,51 +2,67 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:PasswordManager.ViewModels"
         xmlns:controls="using:PasswordManager.Views.UserControls"
         mc:Ignorable="d"
         x:Class="PasswordManager.Views.Windows.LoginRegisterWindow"
         Title="LoginRegisterWindow"
         MinHeight="380" Width="400"
         SizeToContent="Height"
-        CanResize="False">
+        CanResize="False"
+        x:DataType="vm:LoginRegisterViewModel">
+    
+    <Design.DataContext>
+        <vm:LoginRegisterViewModel/>
+    </Design.DataContext>
+    
     <Border Padding="20 20 20 60"
             Background="LightGray">
         <Grid RowDefinitions="100,Auto">
             <TextBlock Grid.Row="0"
-                       Text="Sign in"
+                       Text="{Binding HeaderText}"
                        VerticalAlignment="Center"
                        HorizontalAlignment="Center"
-                       FontSize="30"/>
+                       FontSize="24"/>
             <StackPanel Grid.Row="1"
                         Spacing="16">
                 <StackPanel>
                     <Label Content="EMAIL"/>
-                    <TextBox Padding="8"/>
+                    <TextBox Text="{Binding Email}"
+                             Padding="8"/>
+                    <TextBlock Text="{Binding EmailError}"/>
                 </StackPanel>
                 <StackPanel>
                     <Label Content="MASTER PASSWORD"/>
-                    <TextBox Padding="8"/>
+                    <controls:PasswordBox Password="{Binding MasterPassword, Mode=TwoWay}"
+                                          TextPadding="8"/>
+                    <TextBlock Text="{Binding MasterPasswordError}"/>
                 </StackPanel>
-                <Expander IsExpanded="True"
+                <Expander IsExpanded="{Binding IsRegister}"
                           Theme="{StaticResource NoHeaderExpander}">
                     <StackPanel>
                         <Label Content="CONFIRM PASSWORD"/>
-                        <controls:PasswordBox TextPadding="8"/>
+                        <controls:PasswordBox Password="{Binding RepeatMasterPassword, Mode=TwoWay}"
+                                              TextPadding="8"/>
+                        <TextBlock Text="{Binding RepeatMasterPasswordError}"/>
                     </StackPanel>
                 </Expander>
                 <Separator/>
                 <Button Padding="6"
-                        Content="Sign in"
+                        Content="{Binding ButtonText}"
                         FontSize="16"
                         Foreground="#EEEEEE"
                         HorizontalAlignment="Stretch"
                         HorizontalContentAlignment="Center"
-                        Background="#FF1E4AFF"/>
+                        Background="#FF1E4AFF"
+                        Command="{Binding LoginAttemptCommand}"/>
                 <StackPanel Orientation="Horizontal"
                             HorizontalAlignment="Center"
                             Spacing="8">
-                    <TextBlock Text="Don't have an account?"/>
-                    <HyperlinkButton Content="Create one!" Padding="0" />
+                    <TextBlock Text="{Binding FooterText}"/>
+                    <HyperlinkButton Content="{Binding HyperlinkText}"
+                                     Command="{Binding SwapIsRegisterCommand}"
+                                     Padding="0" />
                 </StackPanel>
             </StackPanel>
         </Grid>

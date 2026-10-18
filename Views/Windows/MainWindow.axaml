@@ -43,8 +43,7 @@
                                 Background="Transparent"
                                 BorderBrush="Transparent"
                                 CornerRadius="8"
-                                Click="Button_OnClick"/>
-                        <!-- Ten nowy "Click" tylko do momentu zaimplementowania ekranu logowania -->
+                                Command="{Binding ClearSelectedCategoryCommand}"/>
                     </StackPanel>
                 </StackPanel>
                 
@@ -63,7 +62,6 @@
                     </Grid>
                 </DockPanel>
                 
-                
                 <StackPanel Grid.Row="2"
                             VerticalAlignment="Bottom">
                     <StackPanel.Styles>
@@ -78,7 +76,7 @@
                     </StackPanel.Styles>    
                     <Button Content="H Settings"/>
                     <Button Content="H Logout"
-                            Click="LogoutButton_OnClick"/>
+                            Command="{Binding SignOutCommand}"/>
                 </StackPanel>
                 
             </Grid>
@@ -158,7 +156,7 @@
         <Expander Grid.Column="2"
                   VerticalAlignment="Stretch"
                   ExpandDirection="Left"
-                  IsExpanded="{Binding IsPasswordSelected, Mode=OneWay}"
+                  IsExpanded="{Binding IsPasswordSelected}"
                   Theme="{StaticResource NoHeaderExpander}">
             <Border Background="LightGray"
                     Width="320"
@@ -231,10 +229,9 @@
                     <StackPanel>
                         <Label Content="H PASSWORD"/>
                         <controls:PasswordBox Name="PasswordTextBox"
-                                 Password="{Binding SelectedPassword?.PasswordEntry.Password}"
+                                 Password="{Binding SelectedPassword?.PasswordEntry.Password, Mode=TwoWay}"
                                  Padding="0"
-                                 TextPadding="4 8">
-                        </controls:PasswordBox>
+                                 TextPadding="4 8"/>
                     </StackPanel>
                     
                     <StackPanel>

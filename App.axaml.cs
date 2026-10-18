@@ -16,10 +16,11 @@ public class App : Application
     }
     public override void OnFrameworkInitializationCompleted()
     {
+        ServiceCollection services = new();
+        services.AddDependencies();
         
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            ServiceCollection services = new();
             // try
             // {
             //     services.ConfigureSupabase();
@@ -35,13 +36,12 @@ public class App : Application
             //     desktop.Shutdown(1); 
             //     return;
             // }
-            services.AddDependencies();
             services.AddTransient<MainWindow>();
-            // services.AddTransient<LoginRegisterScreen>();
-            // services.AddSingleton<Func<MainWindow>>(sp => () => sp.GetRequiredService<MainWindow>());
-            // services.AddSingleton<Func<LoginRegisterScreen>>(sp => () => sp.GetRequiredService<LoginRegisterScreen>());
+            services.AddTransient<LoginRegisterWindow>();
+            services.AddSingleton<Func<MainWindow>>(sp => sp.GetRequiredService<MainWindow>);
+            services.AddSingleton<Func<LoginRegisterWindow>>(sp => sp.GetRequiredService<LoginRegisterWindow>);
             ServiceProvider serviceProvider = services.BuildServiceProvider();
-            desktop.MainWindow = serviceProvider.GetRequiredService<MainWindow>();
+            desktop.MainWindow = serviceProvider.GetRequiredService<LoginRegisterWindow>();
             base.OnFrameworkInitializationCompleted();
         }
     }

@@ -12,6 +12,8 @@ public partial class MainViewModel : ViewModelBase
     public readonly IAuthService authService;
     private readonly IPasswordService passwordService;
     private readonly IDialogService dialogService;
+
+    public event Action? SignedOut;
     
     
     // Mock data for AXAML preview
@@ -71,9 +73,7 @@ public partial class MainViewModel : ViewModelBase
             }
         }
     }
-
-    [ObservableProperty]
-    public partial bool IsPasswordRevealed { get; set; }
+    
 
     public string? SelectedCategory
     {
@@ -87,33 +87,21 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    public PasswordControlViewModel? SelectedPassword
-    {
-        get;
-        set
-        {
-            if (SetProperty(ref field, value))
-            {
-                OnPropertyChanged(nameof(IsPasswordSelected));
-            }
-        }
-    }
+    [ObservableProperty] 
+    [NotifyPropertyChangedFor(nameof(IsPasswordSelected))]
+    public partial PasswordControlViewModel? SelectedPassword { get; set; }
 
     public bool IsPasswordSelected => SelectedPassword != null;
-
+    
     [ObservableProperty]
     public partial ObservableCollection<PasswordControlViewModel> Passwords { get; set; }
+    
+    [ObservableProperty]
+    private partial ObservableCollection<PasswordControlViewModel> PasswordsFromDatabase { get; set; }
 
-    private ObservableCollection<PasswordControlViewModel> PasswordsFromDatabase
+    partial void OnPasswordsFromDatabaseChanged(ObservableCollection<PasswordControlViewModel> value)
     {
-        get;
-        set
-        {
-            if (SetProperty(ref field, value))
-            {
-                Passwords = GetFilteredPasswords();
-            }
-        }
+        Passwords = GetFilteredPasswords();
     }
     
     private ObservableCollection<PasswordControlViewModel> GetFilteredPasswords()
@@ -180,15 +168,22 @@ public partial class MainViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private  async Task OnWindowOpened()
+    {
+        await ListPasswords();
+    }
+
+    [RelayCommand]
     private void ClearSelectedCategory()
     { 
         SelectedCategory = null;
     }
 
     [RelayCommand]
-    private async Task SignOut()
+    private void SignOut()
     {
-        await authService.SignOut();
+        authService.SignOut();
+        SignedOut?.Invoke();
     }
     
 }

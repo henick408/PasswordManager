@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
@@ -10,39 +11,48 @@ namespace PasswordManager.Views.Windows;
 public partial class MainWindow : Window
 {
     private readonly MainViewModel viewModel;
+    private readonly Func<LoginRegisterWindow> loginRegisterWindowFactory;
 
     public MainWindow()
     {
         InitializeComponent();
     }
     
-    public MainWindow(MainViewModel vm)
+    public MainWindow(MainViewModel viewModel, Func<LoginRegisterWindow> loginRegisterWindowFactory)
     {
         InitializeComponent();
-        viewModel = vm;
-        DataContext = viewModel;
+        this.viewModel = viewModel;
+        DataContext = this.viewModel;
         PasswordList.AddHandler(
             PointerPressedEvent,
             PasswordList_PointerPressed,
             RoutingStrategies.Tunnel);
+        this.loginRegisterWindowFactory = loginRegisterWindowFactory;
+        viewModel.SignedOut += OnSignedOut;
+        Opened += MainWindow_Opened;
     }
-
-    private async void Button_OnClick(object? sender, RoutedEventArgs e)
-    {
-        await viewModel.authService.SignInAsync(new UserRequest("test@test.com", "testtest"));
-        await viewModel.ListPasswords();
-        //await viewModel.authService.SignOut();
-    }
-
+    
     private async void AllPasswordsButton_OnClick(object? sender, RoutedEventArgs e)
     {
         await viewModel.ListPasswords();
     }
 
-    private void LogoutButton_OnClick(object? sender, RoutedEventArgs e)
+    private void OnSignedOut()
     {
-        throw new NotImplementedException();
+        var loginRegisterWindow = loginRegisterWindowFactory();
+        if (Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            desktop.MainWindow = loginRegisterWindow;
+        }
+        loginRegisterWindow.Show();
+        Close();
     }
+
+    private async void MainWindow_Opened(object? sender, EventArgs e)
+    {
+        await viewModel.WindowOpenedCommand.ExecuteAsync(null);
+    }
+    
     
     private void PasswordList_PointerPressed(
         object? sender,

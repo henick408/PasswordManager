@@ -69,5 +69,6 @@ public static class ServiceExtensions
         services.AddTransient<MainViewModel>();
         services.AddTransient<PasswordControlViewModel>();
         services.AddTransient<AddEditPasswordViewModel>();
+        services.AddTransient<LoginRegisterViewModel>();
     }
 }

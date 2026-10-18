@@ -6,5 +6,5 @@ public interface IAuthService
 {
     public Task SignUpAsync(UserRequest request);
     public Task SignInAsync(UserRequest request);
-    public Task SignOut();
+    public void SignOut();
 }

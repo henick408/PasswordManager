@@ -27,9 +27,9 @@ public class AuthService(Supabase.Client supabase, UserSession userSession) : IA
         }
     }
 
-    public Task SignOut()
+    public void SignOut()
     {
-        return supabase.Auth.SignOut();
+        supabase.Auth.SignOut();
     }
 
     private byte[] HashCredentials(UserRequest request)
