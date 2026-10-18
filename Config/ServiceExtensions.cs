@@ -10,7 +10,15 @@ namespace PasswordManager.Config;
 
 public static class ServiceExtensions
 {
-    public static async Task ConfigureSupabase(this IServiceCollection services)
+    public static void AddDependencies(this IServiceCollection services)
+    {
+        services.ConfigureSupabase();
+        services.AddRepositories();
+        services.AddServices();
+        services.AddViewModels();
+    }
+    
+    public static void ConfigureSupabase(this IServiceCollection services)
     {
         var configuration = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json", optional: false)
@@ -39,16 +47,16 @@ public static class ServiceExtensions
                     break;
             }
         });
-
-        await supabaseClient.InitializeAsync();
+        
         services.AddSingleton(supabaseClient);
     }
 
     public static void AddServices(this IServiceCollection services)
     {
-        services.AddTransient<AuthService>();
-        services.AddTransient<EncryptionService>();
-        services.AddTransient<PasswordService>();
+        services.AddTransient<IAuthService, AuthService>();
+        services.AddTransient<IEncryptionService, EncryptionService>();
+        services.AddTransient<IPasswordService, PasswordService>();
+        services.AddTransient<IDialogService, DialogService>();
     }
 
     public static void AddRepositories(this IServiceCollection services)
@@ -60,5 +68,7 @@ public static class ServiceExtensions
     {
         services.AddTransient<MainViewModel>();
         services.AddTransient<PasswordControlViewModel>();
+        services.AddTransient<AddEditPasswordViewModel>();
+        services.AddTransient<LoginRegisterViewModel>();
     }
 }

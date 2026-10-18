@@ -7,9 +7,9 @@ using Supabase.Gotrue;
 
 namespace PasswordManager.Service;
 
-public class AuthService(Supabase.Client supabase, UserSession userSession)
+public class AuthService(Supabase.Client supabase, UserSession userSession) : IAuthService
 {
-    public async Task SignUp(UserRequest request)
+    public async Task SignUpAsync(UserRequest request)
     {
         Session? session = await supabase.Auth.SignUp(request.Email, request.Password);
         if (session is not null)
@@ -18,7 +18,7 @@ public class AuthService(Supabase.Client supabase, UserSession userSession)
         }
     }
 
-    public async Task SignIn(UserRequest request)
+    public async Task SignInAsync(UserRequest request)
     {
         Session? session = await supabase.Auth.SignIn(request.Email, request.Password);
         if (session is not null)
@@ -27,9 +27,9 @@ public class AuthService(Supabase.Client supabase, UserSession userSession)
         }
     }
 
-    public Task SignOut()
+    public void SignOut()
     {
-        return supabase.Auth.SignOut();
+        supabase.Auth.SignOut();
     }
 
     private byte[] HashCredentials(UserRequest request)

@@ -26,4 +26,18 @@ public class PasswordEntry
     {
         return JsonSerializer.Deserialize<PasswordEntry>(json, jsonSerializerOptions)!;
     }
+    
+    public PasswordEntry() {}
+
+    public PasswordEntry(PasswordEntry passwordEntry)
+    {
+        Id = passwordEntry.Id;
+        Name = passwordEntry.Name;
+        Url = passwordEntry.Url;
+        Username = passwordEntry.Username;
+        Password = passwordEntry.Password;
+        Category = passwordEntry.Category;
+        Notes = passwordEntry.Notes;
+    }
+    
 }

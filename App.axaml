@@ -1,0 +1,25 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="PasswordManager.App"
+             xmlns:local="using:PasswordManager"
+             RequestedThemeVariant="Light">
+             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+             
+             <Application.Styles>
+                 <FluentTheme />
+             </Application.Styles>
+             
+             <Application.Resources>
+                 <ControlTheme x:Key="NoHeaderExpander"
+                               TargetType="Expander">
+                     <Setter Property="Template">
+                         <ControlTemplate>
+                             <ContentPresenter Name="ExpanderContent"
+                                               Content="{TemplateBinding Content}"
+                                               IsVisible="{TemplateBinding IsExpanded}"/>
+                         </ControlTemplate>
+                     </Setter>
+                 </ControlTheme>
+             </Application.Resources>
+             
+</Application>
