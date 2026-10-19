@@ -3,7 +3,6 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
-using PasswordManager.Dto;
 using PasswordManager.ViewModels;
 
 namespace PasswordManager.Views.Windows;
@@ -30,11 +29,6 @@ public partial class MainWindow : Window
         this.loginRegisterWindowFactory = loginRegisterWindowFactory;
         viewModel.SignedOut += OnSignedOut;
         Opened += MainWindow_Opened;
-    }
-    
-    private async void AllPasswordsButton_OnClick(object? sender, RoutedEventArgs e)
-    {
-        await viewModel.ListPasswords();
     }
 
     private void OnSignedOut()

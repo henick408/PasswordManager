@@ -9,12 +9,10 @@ namespace PasswordManager.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
-    public readonly IAuthService authService;
+    private readonly IAuthService authService;
     private readonly IPasswordService passwordService;
     private readonly IDialogService dialogService;
-
     public event Action? SignedOut;
-    
     
     // Mock data for AXAML preview
     public MainViewModel()
@@ -62,35 +60,24 @@ public partial class MainViewModel : ViewModelBase
         "Social", "Work", "Finance", "Shopping", "Entertainment", "Other"
     };
 
-    public string PasswordSearch
+    [ObservableProperty]
+    public partial string PasswordSearch { get; set; }
+    partial void OnPasswordSearchChanged(string value)
     {
-        get;
-        set
-        {
-            if (SetProperty(ref field, value))
-            {
-                Passwords = GetFilteredPasswords();
-            }
-        }
+        Passwords = GetFilteredPasswords();
     }
     
-
-    public string? SelectedCategory
+    [ObservableProperty]
+    public partial string? SelectedCategory { get; set; }
+    partial void OnSelectedCategoryChanged(string? value)
     {
-        get;
-        set
-        {
-            if (SetProperty(ref field, value))
-            {
-                Passwords = GetFilteredPasswords();
-            }
-        }
+        Passwords = GetFilteredPasswords();
     }
 
     [ObservableProperty] 
     [NotifyPropertyChangedFor(nameof(IsPasswordSelected))]
     public partial PasswordControlViewModel? SelectedPassword { get; set; }
-
+    
     public bool IsPasswordSelected => SelectedPassword != null;
     
     [ObservableProperty]
@@ -104,55 +91,32 @@ public partial class MainViewModel : ViewModelBase
         Passwords = GetFilteredPasswords();
     }
     
-    private ObservableCollection<PasswordControlViewModel> GetFilteredPasswords()
-    {
-        IList<PasswordControlViewModel> filtered = PasswordsFromDatabase;
-
-        if (SelectedCategory is not null)
-        {
-            filtered = filtered.Where(password => password.PasswordEntry.Category == SelectedCategory).ToList();
-        }
-
-        if (!string.IsNullOrEmpty(PasswordSearch))
-        {
-            filtered = filtered.Where(password => password.PasswordEntry.Name.Contains(PasswordSearch, StringComparison.OrdinalIgnoreCase)).ToList();
-        }
-
-        return new ObservableCollection<PasswordControlViewModel>(filtered);
-    }
     
-
-    public async Task ListPasswords()
-    {
-        IList<PasswordEntry> passwordsEntries = await passwordService.GetPasswords();
-        PasswordsFromDatabase = new ObservableCollection<PasswordControlViewModel>(
-            passwordsEntries.Select(entry => new PasswordControlViewModel(entry))
-            );
-    }
-    
-
     [RelayCommand]
     private async Task CreatePassword()
     {
         var dialogPassword = await dialogService.ShowAddEditPassword(Categories);
-        if (dialogPassword is not null)
-        {
-            var createdPassword = await passwordService.CreatePassword(dialogPassword);
-            await ListPasswords();
-            SelectedPassword = new PasswordControlViewModel(createdPassword);
-        }
+        if (dialogPassword is null) return;
+        
+        var createdPassword = await passwordService.CreatePassword(dialogPassword);
+        await ListPasswords();
+        SelectedPassword = Passwords.FirstOrDefault(password => password.PasswordEntry.Id == createdPassword.Id);
     }
     
     [RelayCommand]
     private async Task UpdatePassword()
     {
-        var dialogPassword = await dialogService.ShowAddEditPassword(Categories, new PasswordEntry(SelectedPassword!.PasswordEntry));
-        if (dialogPassword is not null)
+        if (SelectedPassword is null) return;
+        
+        var dialogPassword = await dialogService.ShowAddEditPassword(Categories, new PasswordEntry(SelectedPassword.PasswordEntry));
+
+        if (dialogPassword is null)
         {
-            var updatedPassword = await passwordService.UpdatePassword(dialogPassword);
-            await ListPasswords();
-            SelectedPassword = new PasswordControlViewModel(updatedPassword);
+            return;
         }
+        var updatedPassword = await passwordService.UpdatePassword(dialogPassword);
+        await ListPasswords();
+        SelectedPassword = Passwords.FirstOrDefault(password => password.PasswordEntry.Id == updatedPassword.Id);
     }
     
     [RelayCommand]
@@ -184,6 +148,32 @@ public partial class MainViewModel : ViewModelBase
     {
         authService.SignOut();
         SignedOut?.Invoke();
+    }
+    
+    
+    private ObservableCollection<PasswordControlViewModel> GetFilteredPasswords()
+    {
+        IList<PasswordControlViewModel> filtered = PasswordsFromDatabase;
+
+        if (SelectedCategory is not null)
+        {
+            filtered = filtered.Where(password => password.PasswordEntry.Category == SelectedCategory).ToList();
+        }
+
+        if (!string.IsNullOrEmpty(PasswordSearch))
+        {
+            filtered = filtered.Where(password => password.PasswordEntry.Name.Contains(PasswordSearch, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+        return new ObservableCollection<PasswordControlViewModel>(filtered);
+    }
+    
+    private async Task ListPasswords()
+    {
+        IList<PasswordEntry> passwordsEntries = await passwordService.GetPasswords();
+        PasswordsFromDatabase = new ObservableCollection<PasswordControlViewModel>(
+            passwordsEntries.Select(entry => new PasswordControlViewModel(entry))
+        );
     }
     
 }
