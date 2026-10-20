@@ -29,22 +29,43 @@
                 <StackPanel>
                     <Label Content="EMAIL"/>
                     <TextBox Text="{Binding Email}"
-                             Padding="8"/>
-                    <TextBlock Text="{Binding EmailError}"/>
+                             Padding="8">
+                        <TextBox.KeyBindings>
+                            <KeyBinding Gesture="Enter" Command="{Binding LoginAttemptCommand}"/>
+                            <KeyBinding Gesture="Return" Command="{Binding LoginAttemptCommand}"/>
+                        </TextBox.KeyBindings>
+                    </TextBox>
+                    <TextBlock Text="{Binding EmailError}"
+                               IsVisible="{Binding IsEmailError}"
+                               Foreground="Red"/>
                 </StackPanel>
                 <StackPanel>
                     <Label Content="MASTER PASSWORD"/>
                     <controls:PasswordBox Password="{Binding MasterPassword, Mode=TwoWay}"
-                                          TextPadding="8"/>
-                    <TextBlock Text="{Binding MasterPasswordError}"/>
+                                          TextPadding="8">
+                        <controls:PasswordBox.KeyBindings>
+                            <KeyBinding Gesture="Enter" Command="{Binding LoginAttemptCommand}"/>
+                            <KeyBinding Gesture="Return" Command="{Binding LoginAttemptCommand}"/>
+                        </controls:PasswordBox.KeyBindings>
+                    </controls:PasswordBox>
+                    <TextBlock Text="{Binding MasterPasswordError}"
+                               IsVisible="{Binding IsMasterPasswordError}"
+                               Foreground="Red"/>
                 </StackPanel>
                 <Expander IsExpanded="{Binding IsRegister}"
                           Theme="{StaticResource NoHeaderExpander}">
                     <StackPanel>
                         <Label Content="CONFIRM PASSWORD"/>
                         <controls:PasswordBox Password="{Binding RepeatMasterPassword, Mode=TwoWay}"
-                                              TextPadding="8"/>
-                        <TextBlock Text="{Binding RepeatMasterPasswordError}"/>
+                                              TextPadding="8">
+                            <controls:PasswordBox.KeyBindings>
+                                <KeyBinding Gesture="Enter" Command="{Binding LoginAttemptCommand}"/>
+                                <KeyBinding Gesture="Return" Command="{Binding LoginAttemptCommand}"/>
+                            </controls:PasswordBox.KeyBindings>
+                        </controls:PasswordBox>
+                        <TextBlock Text="{Binding RepeatMasterPasswordError}"
+                                   IsVisible="{Binding IsRepeatMasterPasswordError}"
+                                   Foreground="Red"/>
                     </StackPanel>
                 </Expander>
                 <Separator/>

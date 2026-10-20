@@ -11,6 +11,7 @@ public partial class LoginRegisterViewModel : ViewModelBase
     private readonly IAuthService authService;
     
     public event Action? SignInSuccess;
+    public event Action? RegisterSwap;
 
     private static string emailRegex = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
 
@@ -36,13 +37,22 @@ public partial class LoginRegisterViewModel : ViewModelBase
     public partial string RepeatMasterPassword { get; set; } = string.Empty;
     
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsEmailError))]
     public partial string EmailError { get; set; } = string.Empty;
+
+    public bool IsEmailError => !string.IsNullOrWhiteSpace(EmailError);
     
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsMasterPasswordError))]
     public partial string MasterPasswordError { get; set; } = string.Empty;
+
+    public bool IsMasterPasswordError => !string.IsNullOrWhiteSpace(MasterPasswordError);
     
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsRepeatMasterPasswordError))]
     public partial string RepeatMasterPasswordError { get; set; } = string.Empty;
+
+    public bool IsRepeatMasterPasswordError => !string.IsNullOrWhiteSpace(RepeatMasterPasswordError);
 
     public LoginRegisterViewModel() { }
     
@@ -56,6 +66,7 @@ public partial class LoginRegisterViewModel : ViewModelBase
     {
         ClearCredentials();
         IsRegister = !IsRegister;
+        RegisterSwap?.Invoke();
     }
 
     [RelayCommand]
@@ -114,6 +125,9 @@ public partial class LoginRegisterViewModel : ViewModelBase
         Email = string.Empty;
         MasterPassword = string.Empty;
         RepeatMasterPassword = string.Empty;
+        EmailError = string.Empty;
+        MasterPasswordError = string.Empty;
+        RepeatMasterPasswordError = string.Empty;
     }
 
     private void AfterSuccessfulRegister()
@@ -131,7 +145,11 @@ public partial class LoginRegisterViewModel : ViewModelBase
             EmailError = "Enter your email.";
             return false;
         }
-        if (!IsRegister) return true;
+        if (!IsRegister)
+        {
+            EmailError = string.Empty;
+            return true;
+        }
         
         if (email.Length > 254)
         {
@@ -157,7 +175,11 @@ public partial class LoginRegisterViewModel : ViewModelBase
             MasterPasswordError = "Enter a master password.";
             return false;
         }
-        if (!IsRegister) return true;
+        if (!IsRegister)
+        {
+            MasterPasswordError = string.Empty;
+            return true;
+        }
 
         if (!IsProperMasterPassword(out string error))
         {
@@ -199,6 +221,7 @@ public partial class LoginRegisterViewModel : ViewModelBase
         if (string.IsNullOrWhiteSpace(RepeatMasterPassword))
         {
             RepeatMasterPasswordError = "Confirm your master password.";
+            return false;
         }
 
         if (!MasterPassword.Equals(RepeatMasterPassword))
