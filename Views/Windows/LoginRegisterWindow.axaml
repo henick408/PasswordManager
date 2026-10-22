@@ -16,6 +16,17 @@
         <vm:LoginRegisterViewModel/>
     </Design.DataContext>
     
+    <Window.Styles>
+        <Style Selector="TextBox.error">
+            <Setter Property="BorderBrush" Value="Red"/>
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>
+        <Style Selector="TextBlock.error">
+            <Setter Property="IsVisible" Value="True"/>
+            <Setter Property="Foreground" Value="Red"/>
+        </Style>
+    </Window.Styles>
+    
     <Border Padding="20 20 20 60"
             Background="LightGray">
         <Grid RowDefinitions="100,Auto">
@@ -28,16 +39,16 @@
                         Spacing="16">
                 <StackPanel>
                     <Label Content="EMAIL"/>
-                    <TextBox Text="{Binding Email}"
-                             Padding="8">
+                    <TextBox Classes.error="{Binding IsEmailError}"
+                        Text="{Binding Email}"
+                        Padding="8">
                         <TextBox.KeyBindings>
                             <KeyBinding Gesture="Enter" Command="{Binding LoginAttemptCommand}"/>
                             <KeyBinding Gesture="Return" Command="{Binding LoginAttemptCommand}"/>
                         </TextBox.KeyBindings>
                     </TextBox>
                     <TextBlock Text="{Binding EmailError}"
-                               IsVisible="{Binding IsEmailError}"
-                               Foreground="Red"/>
+                               Classes.error="{Binding IsEmailError}"/>
                 </StackPanel>
                 <StackPanel>
                     <Label Content="MASTER PASSWORD"/>
