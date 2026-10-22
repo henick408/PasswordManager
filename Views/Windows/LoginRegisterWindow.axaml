@@ -17,11 +17,11 @@
     </Design.DataContext>
     
     <Window.Styles>
-        <Style Selector="TextBox.error">
+        <Style Selector="TextBox.validationError">
             <Setter Property="BorderBrush" Value="Red"/>
             <Setter Property="BorderThickness" Value="2"/>
         </Style>
-        <Style Selector="TextBlock.error">
+        <Style Selector="TextBlock.validationError">
             <Setter Property="IsVisible" Value="True"/>
             <Setter Property="Foreground" Value="Red"/>
         </Style>
@@ -39,20 +39,22 @@
                         Spacing="16">
                 <StackPanel>
                     <Label Content="EMAIL"/>
-                    <TextBox Classes.error="{Binding IsEmailError}"
-                        Text="{Binding Email}"
-                        Padding="8">
+                    <TextBox Classes.validationError="{Binding IsEmailError}"
+                             Text="{Binding Email}"
+                             Padding="8">
                         <TextBox.KeyBindings>
                             <KeyBinding Gesture="Enter" Command="{Binding LoginAttemptCommand}"/>
                             <KeyBinding Gesture="Return" Command="{Binding LoginAttemptCommand}"/>
                         </TextBox.KeyBindings>
                     </TextBox>
-                    <TextBlock Text="{Binding EmailError}"
-                               Classes.error="{Binding IsEmailError}"/>
+                    <TextBlock Classes.validationError="{Binding IsEmailError}"
+                               Text="{Binding EmailError}"/>
                 </StackPanel>
+                
                 <StackPanel>
                     <Label Content="MASTER PASSWORD"/>
-                    <controls:PasswordBox Password="{Binding MasterPassword, Mode=TwoWay}"
+                    <controls:PasswordBox Classes.validationError="{Binding IsMasterPasswordError}"
+                                          Password="{Binding MasterPassword, Mode=TwoWay}"
                                           TextPadding="8">
                         <controls:PasswordBox.KeyBindings>
                             <KeyBinding Gesture="Enter" Command="{Binding LoginAttemptCommand}"/>
@@ -60,23 +62,23 @@
                         </controls:PasswordBox.KeyBindings>
                     </controls:PasswordBox>
                     <TextBlock Text="{Binding MasterPasswordError}"
-                               IsVisible="{Binding IsMasterPasswordError}"
-                               Foreground="Red"/>
+                               Classes.validationError="{Binding IsMasterPasswordError}"/>
                 </StackPanel>
+                
                 <Expander IsExpanded="{Binding IsRegister}"
                           Theme="{StaticResource NoHeaderExpander}">
                     <StackPanel>
                         <Label Content="CONFIRM PASSWORD"/>
                         <controls:PasswordBox Password="{Binding RepeatMasterPassword, Mode=TwoWay}"
-                                              TextPadding="8">
+                                              TextPadding="8"
+                                              Classes.validationError="{Binding IsRepeatMasterPasswordError}">
                             <controls:PasswordBox.KeyBindings>
                                 <KeyBinding Gesture="Enter" Command="{Binding LoginAttemptCommand}"/>
                                 <KeyBinding Gesture="Return" Command="{Binding LoginAttemptCommand}"/>
                             </controls:PasswordBox.KeyBindings>
                         </controls:PasswordBox>
                         <TextBlock Text="{Binding RepeatMasterPasswordError}"
-                                   IsVisible="{Binding IsRepeatMasterPasswordError}"
-                                   Foreground="Red"/>
+                                   Classes.validationError="{Binding IsRepeatMasterPasswordError}"/>
                     </StackPanel>
                 </Expander>
                 <Separator/>
