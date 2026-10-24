@@ -42,7 +42,6 @@ public static class ServiceExtensions
             switch (changed)
             {
                 case AuthState.SignedOut:
-                    Console.WriteLine("Wylogowano");
                     userSession.Clear();
                     break;
             }

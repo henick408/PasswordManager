@@ -1,8 +1,10 @@
 using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PasswordManager.CustomExceptions;
 using PasswordManager.Dto;
 using PasswordManager.Service;
+using static Supabase.Gotrue.Exceptions.FailureHint;
 
 namespace PasswordManager.ViewModels;
 
@@ -29,12 +31,32 @@ public partial class LoginRegisterViewModel : ViewModelBase
 
     [ObservableProperty] 
     public partial string Email { get; set; } = string.Empty;
+
+    partial void OnEmailChanged(string value)
+    {
+        EmailError = string.Empty;
+        if (IsAuthError)
+        {
+            AuthError = string.Empty;
+            AuthErrorDetails = string.Empty;
+        }
+    }
     
     [ObservableProperty]
     public partial string MasterPassword { get; set; } = string.Empty;
+
+    partial void OnMasterPasswordChanged(string value)
+    {
+        MasterPasswordError = string.Empty;
+    }
     
     [ObservableProperty]
     public partial string RepeatMasterPassword { get; set; } = string.Empty;
+    
+    partial void OnRepeatMasterPasswordChanged(string value)
+    {
+        RepeatMasterPasswordError = string.Empty;
+    }
     
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsEmailError))]
@@ -53,6 +75,15 @@ public partial class LoginRegisterViewModel : ViewModelBase
     public partial string RepeatMasterPasswordError { get; set; } = string.Empty;
 
     public bool IsRepeatMasterPasswordError => !string.IsNullOrWhiteSpace(RepeatMasterPasswordError);
+
+    [ObservableProperty] 
+    [NotifyPropertyChangedFor(nameof(IsAuthError))]
+    public partial string AuthError { get; set; } = string.Empty;
+
+    public bool IsAuthError => !string.IsNullOrWhiteSpace(AuthError);
+
+    [ObservableProperty] 
+    public partial string AuthErrorDetails { get; set; } = string.Empty;
 
     public LoginRegisterViewModel() { }
     
@@ -93,9 +124,10 @@ public partial class LoginRegisterViewModel : ViewModelBase
             await authService.SignInAsync(request);
             return true;
         }
-        catch (Exception exception)
+        catch (SupabaseAuthException)
         {
-            Console.WriteLine(exception.Message);
+            AuthError = "Unable to sign in";
+            AuthErrorDetails = "The email or master password is incorrect";
             return false;
         }
     }
@@ -112,9 +144,16 @@ public partial class LoginRegisterViewModel : ViewModelBase
             await authService.SignUpAsync(request);
             return true;
         }
-        catch (Exception exception)
+        catch (SupabaseAuthException exception) when (exception.Reason == Reason.UserAlreadyRegistered)
         {
-            Console.WriteLine(exception.Message);
+            AuthError = "Account already exists";
+            AuthErrorDetails = "An account with this email or username already exists.";
+            return false;
+        }
+        catch (SupabaseAuthException)
+        {
+            AuthError = "Error occured";
+            AuthErrorDetails = string.Empty;
             return false;
         }
 
@@ -128,6 +167,8 @@ public partial class LoginRegisterViewModel : ViewModelBase
         EmailError = string.Empty;
         MasterPasswordError = string.Empty;
         RepeatMasterPasswordError = string.Empty;
+        AuthError = string.Empty;
+        AuthErrorDetails = string.Empty;
     }
 
     private void AfterSuccessfulRegister()
@@ -226,7 +267,6 @@ public partial class LoginRegisterViewModel : ViewModelBase
 
         if (!MasterPassword.Equals(RepeatMasterPassword))
         {
-            Console.WriteLine($"{MasterPassword} {RepeatMasterPassword}");
             RepeatMasterPasswordError = "Passwords do not match";
             return false;
         }

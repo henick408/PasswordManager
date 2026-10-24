@@ -1,9 +1,11 @@
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using PasswordManager.CustomExceptions;
 using PasswordManager.Dto;
 using PasswordManager.Model;
 using Supabase.Gotrue;
+using Supabase.Gotrue.Exceptions;
 
 namespace PasswordManager.Service;
 
@@ -11,19 +13,35 @@ public class AuthService(Supabase.Client supabase, UserSession userSession) : IA
 {
     public async Task SignUpAsync(UserRequest request)
     {
-        Session? session = await supabase.Auth.SignUp(request.Email, request.Password);
-        if (session is not null)
+        try
         {
-            userSession.EncryptionHash = HashCredentials(request);
+            Session? session = await supabase.Auth.SignUp(request.Email, request.Password);
+            if (session is not null)
+            {
+                userSession.EncryptionHash = HashCredentials(request);
+            }
+        }
+        catch (GotrueException exception)
+        {
+            AuthError? error = JsonSerializer.Deserialize<AuthError>(exception.Message);
+            throw new SupabaseAuthException(error ?? new AuthError(), exception.Reason);
         }
     }
 
     public async Task SignInAsync(UserRequest request)
     {
-        Session? session = await supabase.Auth.SignIn(request.Email, request.Password);
-        if (session is not null)
+        try
         {
-            userSession.EncryptionHash = HashCredentials(request);
+            Session? session = await supabase.Auth.SignIn(request.Email, request.Password);
+            if (session is not null)
+            {
+                userSession.EncryptionHash = HashCredentials(request);
+            }
+        }
+        catch (GotrueException exception)
+        {
+            AuthError? error = JsonSerializer.Deserialize<AuthError>(exception.Message);
+            throw new SupabaseAuthException(error ?? new AuthError(), exception.Reason);
         }
     }
 

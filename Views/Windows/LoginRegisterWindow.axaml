@@ -61,27 +61,41 @@
                             <KeyBinding Gesture="Return" Command="{Binding LoginAttemptCommand}"/>
                         </controls:PasswordBox.KeyBindings>
                     </controls:PasswordBox>
-                    <TextBlock Text="{Binding MasterPasswordError}"
-                               Classes.validationError="{Binding IsMasterPasswordError}"/>
+                    <TextBlock Classes.validationError="{Binding IsMasterPasswordError}"
+                               Text="{Binding MasterPasswordError}"/>
                 </StackPanel>
                 
-                <Expander IsExpanded="{Binding IsRegister}"
-                          Theme="{StaticResource NoHeaderExpander}">
-                    <StackPanel>
-                        <Label Content="CONFIRM PASSWORD"/>
-                        <controls:PasswordBox Password="{Binding RepeatMasterPassword, Mode=TwoWay}"
-                                              TextPadding="8"
-                                              Classes.validationError="{Binding IsRepeatMasterPasswordError}">
-                            <controls:PasswordBox.KeyBindings>
-                                <KeyBinding Gesture="Enter" Command="{Binding LoginAttemptCommand}"/>
-                                <KeyBinding Gesture="Return" Command="{Binding LoginAttemptCommand}"/>
-                            </controls:PasswordBox.KeyBindings>
-                        </controls:PasswordBox>
-                        <TextBlock Text="{Binding RepeatMasterPasswordError}"
-                                   Classes.validationError="{Binding IsRepeatMasterPasswordError}"/>
+                <StackPanel IsVisible="{Binding IsRegister}">
+                    <Label Content="CONFIRM PASSWORD"/>
+                    <controls:PasswordBox Classes.validationError="{Binding IsRepeatMasterPasswordError}"
+                                          Password="{Binding RepeatMasterPassword, Mode=TwoWay}"
+                                          TextPadding="8">
+                        <controls:PasswordBox.KeyBindings>
+                            <KeyBinding Gesture="Enter" Command="{Binding LoginAttemptCommand}"/>
+                            <KeyBinding Gesture="Return" Command="{Binding LoginAttemptCommand}"/>
+                        </controls:PasswordBox.KeyBindings>
+                    </controls:PasswordBox>
+                    <TextBlock Classes.validationError="{Binding IsRepeatMasterPasswordError}"
+                               Text="{Binding RepeatMasterPasswordError}"/>
+                </StackPanel>
+                
+                <Border Padding="20"
+                        Background="#CC0000"
+                        IsVisible="{Binding IsAuthError}">
+                    <Border.Styles>
+                        <Style Selector="TextBlock">
+                            <Setter Property="Foreground" Value="White"></Setter>
+                        </Style>
+                    </Border.Styles>
+                    <StackPanel Spacing="12">
+                        <TextBlock FontWeight="SemiBold" Text="{Binding AuthError}"/>
+                        <TextBlock Text="{Binding AuthErrorDetails}"
+                                   TextWrapping="WrapWithOverflow"/>
                     </StackPanel>
-                </Expander>
+                </Border>
+                
                 <Separator/>
+                
                 <Button Padding="6"
                         Content="{Binding ButtonText}"
                         FontSize="16"
