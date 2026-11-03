@@ -31,4 +31,10 @@ public class DialogService : IDialogService
         var result = await box.ShowAsync();
         return result == ButtonResult.Ok;
     }
+
+    public async Task ShowMessage(string message, string title, Icon icon)
+    {
+        var box = MessageBoxManager.GetMessageBoxStandard(title, message, ButtonEnum.Ok, icon);
+        await box.ShowAsync();
+    }
 }

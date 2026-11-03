@@ -36,6 +36,7 @@ public class AuthService(Supabase.Client supabase, UserSession userSession) : IA
             if (session is not null)
             {
                 userSession.EncryptionHash = HashCredentials(request);
+                userSession.Credentials = request;
             }
         }
         catch (GotrueException exception)
@@ -44,6 +45,8 @@ public class AuthService(Supabase.Client supabase, UserSession userSession) : IA
             throw new SupabaseAuthException(error ?? new AuthError(), exception.Reason);
         }
     }
+
+    public UserRequest? CurrentCredentials => userSession.Credentials;
 
     public void SignOut()
     {
