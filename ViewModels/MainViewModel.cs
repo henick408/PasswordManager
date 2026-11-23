@@ -218,7 +218,8 @@ public partial class MainViewModel : ViewModelBase
             return;
         }
 
-        await biometricLoginService.EnableAsync(new UserRequest(email, password));
+        await biometricLoginService.EnableAsync(new UserRequest(email, password),
+            warning => dialogService.Confirm(warning, BiometricDisplayName, Icon.Warning));
     }
 
     private async Task DisableBiometric()

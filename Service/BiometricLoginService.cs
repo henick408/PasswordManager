@@ -49,7 +49,7 @@ public class BiometricLoginService(IBiometricAuthenticator authenticator) : IBio
 
     public Task<bool> IsAvailableAsync() => authenticator.IsAvailableAsync();
 
-    public async Task<bool> EnableAsync(UserRequest credentials)
+    public async Task<bool> EnableAsync(UserRequest credentials, Func<string, Task<bool>> confirmWeakProtection)
     {
         byte[] plaintext = JsonSerializer.SerializeToUtf8Bytes(credentials, JsonOptions);
         try
@@ -59,7 +59,8 @@ public class BiometricLoginService(IBiometricAuthenticator authenticator) : IBio
             string emailHashBase64 = Convert.ToBase64String(HashEmail(emailSalt, credentials.Email));
 
             byte[]? protectedData = await authenticator.ProtectAsync(
-                plaintext, BuildAssociatedData(CurrentVersion, emailSaltBase64, emailHashBase64));
+                plaintext, BuildAssociatedData(CurrentVersion, emailSaltBase64, emailHashBase64),
+                confirmWeakProtection);
             if (protectedData is null) return false;
 
             SaveVault(new BiometricVault(CurrentVersion, emailSaltBase64, emailHashBase64,

@@ -8,7 +8,8 @@ public class UnsupportedBiometricAuthenticator : IBiometricAuthenticator
 
     public Task<bool> IsAvailableAsync() => Task.FromResult(false);
 
-    public Task<byte[]?> ProtectAsync(byte[] plaintext, byte[] associatedData) =>
+    public Task<byte[]?> ProtectAsync(byte[] plaintext, byte[] associatedData,
+        Func<string, Task<bool>> confirmWeakProtection) =>
         throw new BiometricException("Biometric sign-in is not supported on this platform.");
 
     public Task<byte[]?> UnprotectAsync(byte[] protectedData, byte[] associatedData) =>
