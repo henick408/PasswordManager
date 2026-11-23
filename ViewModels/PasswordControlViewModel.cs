@@ -17,7 +17,7 @@ public partial class PasswordControlViewModel : ViewModelBase
     {
         PasswordEntry = new PasswordEntry
         {
-            Id = 1,
+            Id = Guid.CreateVersion7(),
             Category = "Category",
             Name = "Name",
             Username = "Username",

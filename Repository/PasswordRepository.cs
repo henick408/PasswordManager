@@ -30,21 +30,28 @@ public class PasswordRepository(Supabase.Client supabase)
         return passwords;
     }
 
-    public async Task<EncryptedPassword?> GetPassword(long id)
+    /// <summary>Loads a single entry of the signed-in user.</summary>
+    /// <param name="id">Client-generated entry id.</param>
+    /// <returns>The row, or <c>null</c> when it does not exist (or belongs to another user — hidden by RLS).</returns>
+    /// <exception cref="UnauthenticatedUserException">No Supabase session.</exception>
+    public async Task<EncryptedPassword?> GetPassword(Guid id)
     {
         EnsureThatLoggedIn();
         EncryptedPassword? password = await supabase
         .From<EncryptedPassword>()
-        .Where(password => password.Id == id)
+        .Filter("id", Constants.Operator.Equals, id.ToString())
         .Single();
 
         return password;
     }
 
-    public async Task DeletePassword(long id)
+    /// <summary>Deletes an entry of the signed-in user. No-op when it does not exist.</summary>
+    /// <param name="id">Client-generated entry id.</param>
+    /// <exception cref="UnauthenticatedUserException">No Supabase session.</exception>
+    public async Task DeletePassword(Guid id)
     {
         EnsureThatLoggedIn();
-        await supabase.From<EncryptedPassword>().Where(password => password.Id == id).Delete();
+        await supabase.From<EncryptedPassword>().Filter("id", Constants.Operator.Equals, id.ToString()).Delete();
     }
 
     private void EnsureThatLoggedIn()

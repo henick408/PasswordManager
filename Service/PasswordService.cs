@@ -15,7 +15,7 @@ public class PasswordService(PasswordRepository passwordRepository, IEncryptionS
             .ToList();
     }
 
-    public async Task<PasswordEntry> GetPassword(long id)
+    public async Task<PasswordEntry> GetPassword(Guid id)
     {
         EncryptedPassword encryptedPassword = await passwordRepository.GetPassword(id)
             ?? throw new PasswordNotFoundException(id);

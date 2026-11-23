@@ -78,6 +78,7 @@ public static class ServiceExtensions
     public static void AddRepositories(this IServiceCollection services)
     {
         services.AddTransient<PasswordRepository>();
+        services.AddTransient<UserKeysRepository>();
     }
 
     public static void AddViewModels(this IServiceCollection services)

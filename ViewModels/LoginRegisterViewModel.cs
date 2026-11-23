@@ -155,6 +155,11 @@ public partial class LoginRegisterViewModel : ViewModelBase
             AuthErrorDetails = "Try again or sign in with your master password.";
             return;
         }
+        catch (VaultUnlockException)
+        {
+            ShowVaultUnlockError();
+            return;
+        }
         SignInSuccess?.Invoke();
     }
 
@@ -196,6 +201,18 @@ public partial class LoginRegisterViewModel : ViewModelBase
             AuthErrorDetails = "The email or master password is incorrect";
             return false;
         }
+        catch (VaultUnlockException)
+        {
+            ShowVaultUnlockError();
+            return false;
+        }
+    }
+
+    private void ShowVaultUnlockError()
+    {
+        AuthError = "Unable to unlock the vault";
+        AuthErrorDetails = "The account was signed in, but its vault key could not be unlocked. "
+                           + "This happens when the account password was reset outside the app.";
     }
 
     private async Task<bool> SignUp()
