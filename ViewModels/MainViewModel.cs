@@ -200,11 +200,10 @@ public partial class MainViewModel : ViewModelBase
             return;
         }
 
-        string? enrolledEmail = biometricLoginService.EnrolledEmail;
-        if (enrolledEmail is not null && !biometricLoginService.IsEnabledFor(email))
+        if (biometricLoginService.IsEnabled && !biometricLoginService.IsEnabledFor(email))
         {
             bool replace = await dialogService.Confirm(
-                $"{BiometricDisplayName} is already set up for {enrolledEmail}.\nReplace it with this account?",
+                $"{BiometricDisplayName} is already set up for another account.\nReplace it with this account?",
                 BiometricDisplayName, Icon.Question);
             if (!replace) return;
         }

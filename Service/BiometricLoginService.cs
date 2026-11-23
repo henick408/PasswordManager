@@ -18,7 +18,11 @@ public class BiometricLoginService(IBiometricAuthenticator authenticator) : IBio
 
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
-    private record BiometricVault(int Version, string Email, string Data);
+    private const int EmailSaltSize = 16;
+
+    // The email is not stored in plain text: only a salted SHA-256 hash, so reading the file
+    // does not reveal which account is enrolled. The email itself lives inside the encrypted Data.
+    private record BiometricVault(int Version, string EmailSalt, string EmailHash, string Data);
 
     private BiometricVault? cachedVault;
     private bool isCacheLoaded;
@@ -27,10 +31,21 @@ public class BiometricLoginService(IBiometricAuthenticator authenticator) : IBio
 
     public bool IsEnabled => GetVault() is not null;
 
-    public string? EnrolledEmail => GetVault()?.Email;
-
-    public bool IsEnabledFor(string? email) =>
-        email is not null && string.Equals(EnrolledEmail, email, StringComparison.OrdinalIgnoreCase);
+    public bool IsEnabledFor(string? email)
+    {
+        BiometricVault? vault = GetVault();
+        if (vault is null || email is null) return false;
+        try
+        {
+            byte[] expected = Convert.FromBase64String(vault.EmailHash);
+            byte[] actual = HashEmail(Convert.FromBase64String(vault.EmailSalt), email);
+            return CryptographicOperations.FixedTimeEquals(actual, expected);
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
+    }
 
     public Task<bool> IsAvailableAsync() => authenticator.IsAvailableAsync();
 
@@ -39,11 +54,16 @@ public class BiometricLoginService(IBiometricAuthenticator authenticator) : IBio
         byte[] plaintext = JsonSerializer.SerializeToUtf8Bytes(credentials, JsonOptions);
         try
         {
-            byte[]? protectedData =
-                await authenticator.ProtectAsync(plaintext, BuildAssociatedData(CurrentVersion, credentials.Email));
+            byte[] emailSalt = RandomNumberGenerator.GetBytes(EmailSaltSize);
+            string emailSaltBase64 = Convert.ToBase64String(emailSalt);
+            string emailHashBase64 = Convert.ToBase64String(HashEmail(emailSalt, credentials.Email));
+
+            byte[]? protectedData = await authenticator.ProtectAsync(
+                plaintext, BuildAssociatedData(CurrentVersion, emailSaltBase64, emailHashBase64));
             if (protectedData is null) return false;
 
-            SaveVault(new BiometricVault(CurrentVersion, credentials.Email, Convert.ToBase64String(protectedData)));
+            SaveVault(new BiometricVault(CurrentVersion, emailSaltBase64, emailHashBase64,
+                Convert.ToBase64String(protectedData)));
             return true;
         }
         finally
@@ -77,7 +97,8 @@ public class BiometricLoginService(IBiometricAuthenticator authenticator) : IBio
         byte[]? plaintext;
         try
         {
-            plaintext = await authenticator.UnprotectAsync(protectedData, BuildAssociatedData(vault.Version, vault.Email));
+            plaintext = await authenticator.UnprotectAsync(protectedData,
+                BuildAssociatedData(vault.Version, vault.EmailSalt, vault.EmailHash));
         }
         catch (BiometricKeyInvalidatedException)
         {
@@ -91,7 +112,7 @@ public class BiometricLoginService(IBiometricAuthenticator authenticator) : IBio
             UserRequest? credentials = JsonSerializer.Deserialize<UserRequest>(plaintext, JsonOptions);
             if (credentials is null
                 || string.IsNullOrEmpty(credentials.Password)
-                || !string.Equals(credentials.Email, vault.Email, StringComparison.OrdinalIgnoreCase))
+                || !IsEnabledFor(credentials.Email))
             {
                 throw new JsonException("Unexpected biometric payload.");
             }
@@ -109,9 +130,12 @@ public class BiometricLoginService(IBiometricAuthenticator authenticator) : IBio
     }
 
     // Binds the encrypted payload to the metadata stored in plain text next to it,
-    // so swapping the email or version in the file is detected on decryption.
-    private static byte[] BuildAssociatedData(int version, string email) =>
-        Encoding.UTF8.GetBytes($"{version}|{email.ToLowerInvariant()}");
+    // so swapping the version or email hash in the file is detected on decryption.
+    private static byte[] BuildAssociatedData(int version, string emailSalt, string emailHash) =>
+        Encoding.UTF8.GetBytes($"{version}|{emailSalt}|{emailHash}");
+
+    private static byte[] HashEmail(byte[] salt, string email) =>
+        SHA256.HashData([..salt, ..Encoding.UTF8.GetBytes(email.Trim().ToLowerInvariant())]);
 
     private BiometricVault? GetVault()
     {
@@ -131,7 +155,8 @@ public class BiometricLoginService(IBiometricAuthenticator authenticator) : IBio
             BiometricVault? vault = JsonSerializer.Deserialize<BiometricVault>(File.ReadAllText(FilePath), JsonOptions);
             if (vault is null
                 || vault.Version != CurrentVersion
-                || string.IsNullOrWhiteSpace(vault.Email)
+                || string.IsNullOrWhiteSpace(vault.EmailSalt)
+                || string.IsNullOrWhiteSpace(vault.EmailHash)
                 || string.IsNullOrWhiteSpace(vault.Data))
             {
                 // Outdated (e.g. v1) or malformed file: its Hello key is gone/unusable, start over.

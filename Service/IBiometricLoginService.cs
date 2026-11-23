@@ -6,7 +6,6 @@ public interface IBiometricLoginService
 {
     string DisplayName { get; }
     bool IsEnabled { get; }
-    string? EnrolledEmail { get; }
 
     bool IsEnabledFor(string? email);
 

@@ -47,6 +47,7 @@ public class WindowsHelloAuthenticator(ITopLevelProvider topLevelProvider) : IBi
                 .AsTask());
         if (IsCancelled(result.Status)) return null;
         EnsureSuccess(result.Status);
+        await EnsureHardwareBackedAsync(result.Credential);
 
         byte[] salt = RandomNumberGenerator.GetBytes(SaltSize);
         byte[]? key = await DeriveKeyAsync(result.Credential, salt);
@@ -151,6 +152,38 @@ public class WindowsHelloAuthenticator(ITopLevelProvider topLevelProvider) : IBi
         {
             CryptographicOperations.ZeroMemory(signature);
         }
+    }
+
+    /// <summary>
+    /// Refuses keys that are not protected by a TPM. Hello falls back to a software key on machines without
+    /// a (usable) TPM; such a key is far easier to extract, so it must not guard the master password.
+    /// Key attestation only succeeds for TPM-backed keys and does not prompt the user.
+    /// </summary>
+    private static async Task EnsureHardwareBackedAsync(KeyCredential credential)
+    {
+        KeyCredentialAttestationResult attestation =
+            await CallHelloAsync(() => credential.GetAttestationAsync().AsTask());
+
+        string? error = attestation.Status switch
+        {
+            KeyCredentialAttestationStatus.Success => null,
+            KeyCredentialAttestationStatus.NotSupported =>
+                "Windows Hello on this device does not use a TPM security chip, so the key is not protected by hardware.",
+            KeyCredentialAttestationStatus.TemporaryFailure =>
+                "Unable to confirm that the Windows Hello key is protected by a TPM security chip. Try again later.",
+            _ => $"Unable to verify the Windows Hello key ({attestation.Status})."
+        };
+        if (error is null) return;
+
+        try
+        {
+            await KeyCredentialManager.DeleteAsync(CredentialName);
+        }
+        catch (Exception)
+        {
+            // Best effort cleanup; the key is unusable for us anyway.
+        }
+        throw new BiometricException(error);
     }
 
     /// <summary>Wraps WinRT failures (COMException etc.) so callers only have to handle <see cref="BiometricException"/>.</summary>

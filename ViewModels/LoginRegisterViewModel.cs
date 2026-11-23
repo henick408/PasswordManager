@@ -89,13 +89,10 @@ public partial class LoginRegisterViewModel : ViewModelBase
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanUseBiometric))]
-    [NotifyPropertyChangedFor(nameof(BiometricButtonText))]
     public partial bool IsBiometricReady { get; set; }
 
     public bool CanUseBiometric => IsBiometricReady && !IsRegister;
-    public string BiometricButtonText => biometricLoginService.EnrolledEmail is { } enrolledEmail
-        ? $"Sign in with {BiometricDisplayName} ({enrolledEmail})"
-        : $"Sign in with {BiometricDisplayName}";
+    public string BiometricButtonText => $"Sign in with {BiometricDisplayName}";
     private string BiometricDisplayName => biometricLoginService.DisplayName;
 
     public LoginRegisterViewModel() { }
