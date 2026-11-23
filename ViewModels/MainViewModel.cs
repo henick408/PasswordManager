@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MsBox.Avalonia.Enums;
+using PasswordManager.CustomExceptions;
 using PasswordManager.Dto;
 using PasswordManager.Service;
 
@@ -12,6 +13,7 @@ public partial class MainViewModel : ViewModelBase
     private readonly IAuthService authService;
     private readonly IPasswordService passwordService;
     private readonly IDialogService dialogService;
+    private readonly IBiometricLoginService biometricLoginService;
     public event Action? SignedOut;
     
     // Mock data for AXAML preview
@@ -48,11 +50,13 @@ public partial class MainViewModel : ViewModelBase
             })
         };
     }
-    public MainViewModel(IAuthService authService, IPasswordService passwordService, IDialogService dialogService)
+    public MainViewModel(IAuthService authService, IPasswordService passwordService, IDialogService dialogService,
+        IBiometricLoginService biometricLoginService)
     {
         this.authService = authService;
         this.passwordService = passwordService;
         this.dialogService = dialogService;
+        this.biometricLoginService = biometricLoginService;
     }
     
     public IList<string> Categories { get; } = new List<string>
@@ -92,6 +96,14 @@ public partial class MainViewModel : ViewModelBase
     }
     
     
+    [ObservableProperty]
+    public partial bool IsBiometricAvailable { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsBiometricEnabled { get; set; }
+
+    public string BiometricDisplayName => biometricLoginService.DisplayName;
+
     [RelayCommand]
     private async Task CreatePassword()
     {
@@ -134,7 +146,33 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private  async Task OnWindowOpened()
     {
+        IsBiometricAvailable = await biometricLoginService.IsAvailableAsync();
+        IsBiometricEnabled = biometricLoginService.IsEnabledFor(authService.CurrentEmail);
         await ListPasswords();
+    }
+
+    [RelayCommand]
+    private async Task ToggleBiometric()
+    {
+        try
+        {
+            if (IsBiometricEnabled)
+            {
+                await EnableBiometric();
+            }
+            else
+            {
+                await DisableBiometric();
+            }
+        }
+        catch (BiometricException exception)
+        {
+            await dialogService.ShowMessage(exception.Message, BiometricDisplayName, Icon.Error);
+        }
+        finally
+        {
+            IsBiometricEnabled = biometricLoginService.IsEnabledFor(authService.CurrentEmail);
+        }
     }
 
     [RelayCommand]
@@ -150,6 +188,48 @@ public partial class MainViewModel : ViewModelBase
         SignedOut?.Invoke();
     }
     
+    
+    private async Task EnableBiometric()
+    {
+        string? email = authService.CurrentEmail;
+        if (email is null)
+        {
+            await dialogService.ShowMessage(
+                $"Sign in with your master password to turn on {BiometricDisplayName}.",
+                BiometricDisplayName, Icon.Info);
+            return;
+        }
+
+        if (biometricLoginService.IsEnabled && !biometricLoginService.IsEnabledFor(email))
+        {
+            bool replace = await dialogService.Confirm(
+                $"{BiometricDisplayName} is already set up for another account.\nReplace it with this account?",
+                BiometricDisplayName, Icon.Question);
+            if (!replace) return;
+        }
+
+        string? password = await dialogService.PromptMasterPassword(
+            $"Enter your master password to turn on {BiometricDisplayName}.", BiometricDisplayName);
+        if (password is null) return;
+
+        if (!await authService.VerifyMasterPasswordAsync(password))
+        {
+            await dialogService.ShowMessage("The master password is incorrect.", BiometricDisplayName, Icon.Error);
+            return;
+        }
+
+        await biometricLoginService.EnableAsync(new UserRequest(email, password),
+            warning => dialogService.Confirm(warning, BiometricDisplayName, Icon.Warning));
+    }
+
+    private async Task DisableBiometric()
+    {
+        bool confirmed = await dialogService.Confirm(
+            $"Turn off {BiometricDisplayName}?\nYou will need your master password to sign in.",
+            BiometricDisplayName, Icon.Question);
+        if (!confirmed) return;
+        await biometricLoginService.DisableAsync();
+    }
     
     private ObservableCollection<PasswordControlViewModel> GetFilteredPasswords()
     {

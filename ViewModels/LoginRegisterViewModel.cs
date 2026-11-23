@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using PasswordManager.CustomExceptions;
@@ -11,6 +11,7 @@ namespace PasswordManager.ViewModels;
 public partial class LoginRegisterViewModel : ViewModelBase
 {
     private readonly IAuthService authService;
+    private readonly IBiometricLoginService biometricLoginService;
     
     public event Action? SignInSuccess;
     public event Action? RegisterSwap;
@@ -22,6 +23,7 @@ public partial class LoginRegisterViewModel : ViewModelBase
     [NotifyPropertyChangedFor(nameof(ButtonText))]
     [NotifyPropertyChangedFor(nameof(FooterText))]
     [NotifyPropertyChangedFor(nameof(HyperlinkText))]
+    [NotifyPropertyChangedFor(nameof(CanUseBiometric))]
     public partial bool IsRegister { get; set; }
 
     public string HeaderText    => IsRegister ? "Create your account" : "Sign in";
@@ -85,11 +87,75 @@ public partial class LoginRegisterViewModel : ViewModelBase
     [ObservableProperty] 
     public partial string AuthErrorDetails { get; set; } = string.Empty;
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanUseBiometric))]
+    public partial bool IsBiometricReady { get; set; }
+
+    public bool CanUseBiometric => IsBiometricReady && !IsRegister;
+    public string BiometricButtonText => $"Sign in with {BiometricDisplayName}";
+    private string BiometricDisplayName => biometricLoginService.DisplayName;
+
     public LoginRegisterViewModel() { }
     
-    public LoginRegisterViewModel(IAuthService authService)
+    public LoginRegisterViewModel(IAuthService authService, IBiometricLoginService biometricLoginService)
     {
         this.authService = authService;
+        this.biometricLoginService = biometricLoginService;
+    }
+
+    [RelayCommand]
+    private async Task LoadBiometricState()
+    {
+        IsBiometricReady = biometricLoginService.IsEnabled && await biometricLoginService.IsAvailableAsync();
+    }
+
+    [RelayCommand]
+    private async Task BiometricSignIn()
+    {
+        AuthError = string.Empty;
+        AuthErrorDetails = string.Empty;
+
+        UserRequest? credentials;
+        try
+        {
+            credentials = await biometricLoginService.UnlockCredentialsAsync();
+        }
+        catch (BiometricKeyInvalidatedException)
+        {
+            IsBiometricReady = false;
+            AuthError = $"{BiometricDisplayName} is no longer set up";
+            AuthErrorDetails = $"Sign in with your master password and turn on {BiometricDisplayName} again.";
+            return;
+        }
+        catch (BiometricException exception)
+        {
+            AuthError = $"Unable to sign in with {BiometricDisplayName}";
+            AuthErrorDetails = exception.Message;
+            return;
+        }
+        if (credentials is null) return;
+
+        try
+        {
+            await authService.SignInAsync(credentials);
+        }
+        catch (SupabaseAuthException exception)
+            when (exception.Reason is Reason.UserBadLogin or Reason.UserBadPassword)
+        {
+            // Stored credentials are outdated (e.g. the master password was changed).
+            await biometricLoginService.DisableAsync();
+            IsBiometricReady = false;
+            AuthError = $"{BiometricDisplayName} sign-in data is outdated";
+            AuthErrorDetails = $"Sign in with your master password and turn on {BiometricDisplayName} again.";
+            return;
+        }
+        catch (SupabaseAuthException)
+        {
+            AuthError = $"Unable to sign in with {BiometricDisplayName}";
+            AuthErrorDetails = "Try again or sign in with your master password.";
+            return;
+        }
+        SignInSuccess?.Invoke();
     }
 
     [RelayCommand]

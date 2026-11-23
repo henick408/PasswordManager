@@ -31,4 +31,17 @@ public class DialogService : IDialogService
         var result = await box.ShowAsync();
         return result == ButtonResult.Ok;
     }
+
+    public async Task ShowMessage(string message, string title, Icon icon)
+    {
+        var box = MessageBoxManager.GetMessageBoxStandard(title, message, ButtonEnum.Ok, icon);
+        await box.ShowAsync();
+    }
+
+    public async Task<string?> PromptMasterPassword(string message, string title)
+    {
+        MasterPasswordDialogViewModel viewModel = new(title, message);
+        MasterPasswordDialog dialog = new(viewModel);
+        return await dialog.ShowDialog<string?>(Owner);
+    }
 }

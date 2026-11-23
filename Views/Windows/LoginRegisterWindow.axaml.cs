@@ -27,9 +27,10 @@ public partial class LoginRegisterWindow : Window
         Loaded += Window_OnOpened;
     }
 
-    private void Window_OnOpened(object? sender, RoutedEventArgs e)
+    private async void Window_OnOpened(object? sender, RoutedEventArgs e)
     {
         FocusEmail();
+        await viewModel.LoadBiometricStateCommand.ExecuteAsync(null);
     }
     
     private void FocusEmail()

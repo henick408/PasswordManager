@@ -25,7 +25,8 @@
         
         <Border Grid.Column="0"
                 Background="LightGray">
-            <Grid RowDefinitions="Auto,*,100">
+
+            <Grid RowDefinitions="Auto,*,Auto">
 
                 <StackPanel Grid.Row="0">
                     <TextBlock Text="H KeyVault"
@@ -74,6 +75,12 @@
                             <Setter Property="CornerRadius" Value="8"/>
                         </Style>
                     </StackPanel.Styles>    
+                    <ToggleSwitch Content="{Binding BiometricDisplayName}"
+                                  IsChecked="{Binding IsBiometricEnabled}"
+                                  Command="{Binding ToggleBiometricCommand}"
+                                  IsVisible="{Binding IsBiometricAvailable}"
+                                  FontSize="12"
+                                  Margin="10 0"/>
                     <Button Content="H Settings"/>
                     <Button Content="H Logout"
                             Command="{Binding SignOutCommand}"/>
