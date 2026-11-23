@@ -89,10 +89,13 @@ public partial class LoginRegisterViewModel : ViewModelBase
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanUseBiometric))]
+    [NotifyPropertyChangedFor(nameof(BiometricButtonText))]
     public partial bool IsBiometricReady { get; set; }
 
     public bool CanUseBiometric => IsBiometricReady && !IsRegister;
-    public string BiometricButtonText => $"Sign in with {BiometricDisplayName}";
+    public string BiometricButtonText => biometricLoginService.EnrolledEmail is { } enrolledEmail
+        ? $"Sign in with {BiometricDisplayName} ({enrolledEmail})"
+        : $"Sign in with {BiometricDisplayName}";
     private string BiometricDisplayName => biometricLoginService.DisplayName;
 
     public LoginRegisterViewModel() { }
@@ -139,10 +142,20 @@ public partial class LoginRegisterViewModel : ViewModelBase
         {
             await authService.SignInAsync(credentials);
         }
+        catch (SupabaseAuthException exception)
+            when (exception.Reason is Reason.UserBadLogin or Reason.UserBadPassword)
+        {
+            // Stored credentials are outdated (e.g. the master password was changed).
+            await biometricLoginService.DisableAsync();
+            IsBiometricReady = false;
+            AuthError = $"{BiometricDisplayName} sign-in data is outdated";
+            AuthErrorDetails = $"Sign in with your master password and turn on {BiometricDisplayName} again.";
+            return;
+        }
         catch (SupabaseAuthException)
         {
             AuthError = $"Unable to sign in with {BiometricDisplayName}";
-            AuthErrorDetails = "Sign in with your master password.";
+            AuthErrorDetails = "Try again or sign in with your master password.";
             return;
         }
         SignInSuccess?.Invoke();

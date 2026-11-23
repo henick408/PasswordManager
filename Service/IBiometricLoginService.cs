@@ -8,6 +8,8 @@ public interface IBiometricLoginService
     bool IsEnabled { get; }
     string? EnrolledEmail { get; }
 
+    bool IsEnabledFor(string? email);
+
     Task<bool> IsAvailableAsync();
 
     Task<bool> EnableAsync(UserRequest credentials);

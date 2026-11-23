@@ -1,16 +1,14 @@
-using PasswordManager.Dto;
-
 namespace PasswordManager.Model;
 
 public class UserSession
 {
     public byte[]? EncryptionHash { get; set; }
 
-    public UserRequest? Credentials { get; set; }
+    public string? Email { get; set; }
 
     public void Clear()
     {
         EncryptionHash = null;
-        Credentials = null;
+        Email = null;
     }
 }

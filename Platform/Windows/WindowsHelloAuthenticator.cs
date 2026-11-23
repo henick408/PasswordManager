@@ -8,14 +8,22 @@ using Windows.Security.Cryptography;
 
 namespace PasswordManager.Platform.Windows;
 
+/// <summary>
+/// Protects data with a key derived from a Windows Hello (TPM-backed) RSA signature of a fixed challenge.
+/// Hello signatures are deterministic (RSA PKCS#1 v1.5), so the same key is derived on every unlock.
+/// Blob layout: salt(32) | nonce(12) | tag(16) | ciphertext.
+/// </summary>
 public class WindowsHelloAuthenticator(ITopLevelProvider topLevelProvider) : IBiometricAuthenticator
 {
-    private const string CredentialName = "PasswordManager";
+    // Unique name, so the Hello key cannot collide with credentials of other unpackaged apps.
+    private const string CredentialName = "PasswordManager.WindowsHello.7f3c2a9e-4b1d-4e8a-9c6f-2d5b8e1a0c47";
     private const int KeySize = 32;
+    private const int SaltSize = 32;
     private const int NonceSize = 12;
     private const int TagSize = 16;
-    private static readonly byte[] Challenge = Encoding.UTF8.GetBytes("PasswordManager.WindowsHello.v1");
-    private static readonly byte[] KeyInfo = Encoding.UTF8.GetBytes("PasswordManager vault key");
+    private const int HeaderSize = SaltSize + NonceSize + TagSize;
+    private static readonly byte[] Challenge = Encoding.UTF8.GetBytes("PasswordManager.WindowsHello.v2");
+    private static readonly byte[] KeyInfo = Encoding.UTF8.GetBytes("PasswordManager biometric key v2");
 
     public string DisplayName => "Windows Hello";
 
@@ -31,15 +39,17 @@ public class WindowsHelloAuthenticator(ITopLevelProvider topLevelProvider) : IBi
         }
     }
 
-    public async Task<byte[]?> ProtectAsync(byte[] plaintext)
+    public async Task<byte[]?> ProtectAsync(byte[] plaintext, byte[] associatedData)
     {
         BringWindowToFront();
-        KeyCredentialRetrievalResult result =
-            await KeyCredentialManager.RequestCreateAsync(CredentialName, KeyCredentialCreationOption.ReplaceExisting);
+        KeyCredentialRetrievalResult result = await CallHelloAsync(() =>
+            KeyCredentialManager.RequestCreateAsync(CredentialName, KeyCredentialCreationOption.ReplaceExisting)
+                .AsTask());
         if (IsCancelled(result.Status)) return null;
         EnsureSuccess(result.Status);
 
-        byte[]? key = await DeriveKeyAsync(result.Credential);
+        byte[] salt = RandomNumberGenerator.GetBytes(SaltSize);
+        byte[]? key = await DeriveKeyAsync(result.Credential, salt);
         if (key is null) return null;
 
         try
@@ -50,10 +60,14 @@ public class WindowsHelloAuthenticator(ITopLevelProvider topLevelProvider) : IBi
 
             using (AesGcm aes = new(key, TagSize))
             {
-                aes.Encrypt(nonce, plaintext, cipherText, tag);
+                aes.Encrypt(nonce, plaintext, cipherText, tag, associatedData);
             }
 
-            return [..nonce, ..tag, ..cipherText];
+            return [..salt, ..nonce, ..tag, ..cipherText];
+        }
+        catch (CryptographicException exception)
+        {
+            throw new BiometricException("Unable to protect data with Windows Hello.", exception);
         }
         finally
         {
@@ -61,40 +75,47 @@ public class WindowsHelloAuthenticator(ITopLevelProvider topLevelProvider) : IBi
         }
     }
 
-    public async Task<byte[]?> UnprotectAsync(byte[] protectedData)
+    public async Task<byte[]?> UnprotectAsync(byte[] protectedData, byte[] associatedData)
     {
-        if (protectedData.Length < NonceSize + TagSize)
+        if (protectedData.Length < HeaderSize)
         {
             throw new BiometricKeyInvalidatedException();
         }
 
         BringWindowToFront();
-        KeyCredentialRetrievalResult result = await KeyCredentialManager.OpenAsync(CredentialName);
-        if (result.Status == KeyCredentialStatus.NotFound) throw new BiometricKeyInvalidatedException();
+        KeyCredentialRetrievalResult result = await CallHelloAsync(() =>
+            KeyCredentialManager.OpenAsync(CredentialName).AsTask());
         if (IsCancelled(result.Status)) return null;
         EnsureSuccess(result.Status);
 
-        byte[]? key = await DeriveKeyAsync(result.Credential);
+        byte[] salt = protectedData.AsSpan(0, SaltSize).ToArray();
+        byte[]? key = await DeriveKeyAsync(result.Credential, salt);
         if (key is null) return null;
 
+        byte[] plaintext = new byte[protectedData.Length - HeaderSize];
         try
         {
-            ReadOnlySpan<byte> nonce = protectedData.AsSpan(0, NonceSize);
-            ReadOnlySpan<byte> tag = protectedData.AsSpan(NonceSize, TagSize);
-            ReadOnlySpan<byte> cipherText = protectedData.AsSpan(NonceSize + TagSize);
-            byte[] plaintext = new byte[cipherText.Length];
+            ReadOnlySpan<byte> nonce = protectedData.AsSpan(SaltSize, NonceSize);
+            ReadOnlySpan<byte> tag = protectedData.AsSpan(SaltSize + NonceSize, TagSize);
+            ReadOnlySpan<byte> cipherText = protectedData.AsSpan(HeaderSize);
 
             using (AesGcm aes = new(key, TagSize))
             {
-                aes.Decrypt(nonce, cipherText, tag, plaintext);
+                aes.Decrypt(nonce, cipherText, tag, plaintext, associatedData);
             }
 
             return plaintext;
         }
         catch (AuthenticationTagMismatchException exception)
         {
-            // A different Hello key than the one used for encryption (e.g. Hello was reset).
+            // Different Hello key (e.g. Hello was reset) or tampered data / metadata.
+            CryptographicOperations.ZeroMemory(plaintext);
             throw new BiometricKeyInvalidatedException(exception);
+        }
+        catch (CryptographicException exception)
+        {
+            CryptographicOperations.ZeroMemory(plaintext);
+            throw new BiometricException("Unable to unlock data with Windows Hello.", exception);
         }
         finally
         {
@@ -110,25 +131,38 @@ public class WindowsHelloAuthenticator(ITopLevelProvider topLevelProvider) : IBi
         }
         catch (Exception)
         {
-            // Key does not exist, nothing to remove.
+            // Key does not exist (or is already gone), nothing to remove.
         }
     }
 
-    private static async Task<byte[]?> DeriveKeyAsync(KeyCredential credential)
+    private static async Task<byte[]?> DeriveKeyAsync(KeyCredential credential, byte[] salt)
     {
-        KeyCredentialOperationResult signResult =
-            await credential.RequestSignAsync(CryptographicBuffer.CreateFromByteArray(Challenge));
+        KeyCredentialOperationResult signResult = await CallHelloAsync(() =>
+            credential.RequestSignAsync(CryptographicBuffer.CreateFromByteArray(Challenge)).AsTask());
         if (IsCancelled(signResult.Status)) return null;
         EnsureSuccess(signResult.Status);
 
         CryptographicBuffer.CopyToByteArray(signResult.Result, out byte[] signature);
         try
         {
-            return HKDF.DeriveKey(HashAlgorithmName.SHA256, signature, KeySize, info: KeyInfo);
+            return HKDF.DeriveKey(HashAlgorithmName.SHA256, signature, KeySize, salt, KeyInfo);
         }
         finally
         {
             CryptographicOperations.ZeroMemory(signature);
+        }
+    }
+
+    /// <summary>Wraps WinRT failures (COMException etc.) so callers only have to handle <see cref="BiometricException"/>.</summary>
+    private static async Task<T> CallHelloAsync<T>(Func<Task<T>> call)
+    {
+        try
+        {
+            return await call();
+        }
+        catch (Exception exception) when (exception is not BiometricException)
+        {
+            throw new BiometricException("Windows Hello failed.", exception);
         }
     }
 

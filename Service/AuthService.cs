@@ -18,7 +18,8 @@ public class AuthService(Supabase.Client supabase, UserSession userSession) : IA
             Session? session = await supabase.Auth.SignUp(request.Email, request.Password);
             if (session is not null)
             {
-                userSession.EncryptionHash = HashCredentials(request);
+                userSession.EncryptionHash = await DeriveVaultKeyAsync(request);
+                userSession.Email = request.Email;
             }
         }
         catch (GotrueException exception)
@@ -35,8 +36,8 @@ public class AuthService(Supabase.Client supabase, UserSession userSession) : IA
             Session? session = await supabase.Auth.SignIn(request.Email, request.Password);
             if (session is not null)
             {
-                userSession.EncryptionHash = HashCredentials(request);
-                userSession.Credentials = request;
+                userSession.EncryptionHash = await DeriveVaultKeyAsync(request);
+                userSession.Email = request.Email;
             }
         }
         catch (GotrueException exception)
@@ -46,12 +47,33 @@ public class AuthService(Supabase.Client supabase, UserSession userSession) : IA
         }
     }
 
-    public UserRequest? CurrentCredentials => userSession.Credentials;
+    public string? CurrentEmail => userSession.Email;
+
+    public async Task<bool> VerifyMasterPasswordAsync(string password)
+    {
+        string? email = userSession.Email;
+        byte[]? expected = userSession.EncryptionHash;
+        if (email is null || expected is null) return false;
+
+        byte[] actual = await DeriveVaultKeyAsync(new UserRequest(email, password));
+        try
+        {
+            return CryptographicOperations.FixedTimeEquals(actual, expected);
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(actual);
+        }
+    }
 
     public void SignOut()
     {
         supabase.Auth.SignOut();
     }
+
+    // Single place where the vault key is derived from credentials. Async so that a slow KDF
+    // (or fetching a salt from the server) can be introduced later without touching callers.
+    private Task<byte[]> DeriveVaultKeyAsync(UserRequest request) => Task.FromResult(HashCredentials(request));
 
     private byte[] HashCredentials(UserRequest request)
     {

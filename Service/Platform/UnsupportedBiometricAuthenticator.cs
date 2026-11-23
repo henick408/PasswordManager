@@ -1,3 +1,5 @@
+using PasswordManager.CustomExceptions;
+
 namespace PasswordManager.Service.Platform;
 
 public class UnsupportedBiometricAuthenticator : IBiometricAuthenticator
@@ -6,9 +8,11 @@ public class UnsupportedBiometricAuthenticator : IBiometricAuthenticator
 
     public Task<bool> IsAvailableAsync() => Task.FromResult(false);
 
-    public Task<byte[]?> ProtectAsync(byte[] plaintext) => throw new PlatformNotSupportedException();
+    public Task<byte[]?> ProtectAsync(byte[] plaintext, byte[] associatedData) =>
+        throw new BiometricException("Biometric sign-in is not supported on this platform.");
 
-    public Task<byte[]?> UnprotectAsync(byte[] protectedData) => throw new PlatformNotSupportedException();
+    public Task<byte[]?> UnprotectAsync(byte[] protectedData, byte[] associatedData) =>
+        throw new BiometricException("Biometric sign-in is not supported on this platform.");
 
     public Task RemoveAsync() => Task.CompletedTask;
 }

@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using PasswordManager.CustomExceptions;
 using PasswordManager.Dto;
@@ -8,7 +9,7 @@ namespace PasswordManager.Service;
 
 public class BiometricLoginService(IBiometricAuthenticator authenticator) : IBiometricLoginService
 {
-    private const int CurrentVersion = 1;
+    private const int CurrentVersion = 2;
 
     private static readonly string FilePath = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -19,11 +20,17 @@ public class BiometricLoginService(IBiometricAuthenticator authenticator) : IBio
 
     private record BiometricVault(int Version, string Email, string Data);
 
+    private BiometricVault? cachedVault;
+    private bool isCacheLoaded;
+
     public string DisplayName => authenticator.DisplayName;
 
-    public bool IsEnabled => LoadVault() is not null;
+    public bool IsEnabled => GetVault() is not null;
 
-    public string? EnrolledEmail => LoadVault()?.Email;
+    public string? EnrolledEmail => GetVault()?.Email;
+
+    public bool IsEnabledFor(string? email) =>
+        email is not null && string.Equals(EnrolledEmail, email, StringComparison.OrdinalIgnoreCase);
 
     public Task<bool> IsAvailableAsync() => authenticator.IsAvailableAsync();
 
@@ -32,7 +39,8 @@ public class BiometricLoginService(IBiometricAuthenticator authenticator) : IBio
         byte[] plaintext = JsonSerializer.SerializeToUtf8Bytes(credentials, JsonOptions);
         try
         {
-            byte[]? protectedData = await authenticator.ProtectAsync(plaintext);
+            byte[]? protectedData =
+                await authenticator.ProtectAsync(plaintext, BuildAssociatedData(CurrentVersion, credentials.Email));
             if (protectedData is null) return false;
 
             SaveVault(new BiometricVault(CurrentVersion, credentials.Email, Convert.ToBase64String(protectedData)));
@@ -46,22 +54,30 @@ public class BiometricLoginService(IBiometricAuthenticator authenticator) : IBio
 
     public async Task DisableAsync()
     {
-        if (File.Exists(FilePath))
-        {
-            File.Delete(FilePath);
-        }
+        DeleteVaultFile();
         await authenticator.RemoveAsync();
     }
 
     public async Task<UserRequest?> UnlockCredentialsAsync()
     {
-        BiometricVault? vault = LoadVault();
+        BiometricVault? vault = GetVault();
         if (vault is null) return null;
+
+        byte[] protectedData;
+        try
+        {
+            protectedData = Convert.FromBase64String(vault.Data);
+        }
+        catch (FormatException exception)
+        {
+            await DisableAsync();
+            throw new BiometricKeyInvalidatedException(exception);
+        }
 
         byte[]? plaintext;
         try
         {
-            plaintext = await authenticator.UnprotectAsync(Convert.FromBase64String(vault.Data));
+            plaintext = await authenticator.UnprotectAsync(protectedData, BuildAssociatedData(vault.Version, vault.Email));
         }
         catch (BiometricKeyInvalidatedException)
         {
@@ -72,12 +88,39 @@ public class BiometricLoginService(IBiometricAuthenticator authenticator) : IBio
 
         try
         {
-            return JsonSerializer.Deserialize<UserRequest>(plaintext, JsonOptions);
+            UserRequest? credentials = JsonSerializer.Deserialize<UserRequest>(plaintext, JsonOptions);
+            if (credentials is null
+                || string.IsNullOrEmpty(credentials.Password)
+                || !string.Equals(credentials.Email, vault.Email, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new JsonException("Unexpected biometric payload.");
+            }
+            return credentials;
+        }
+        catch (JsonException exception)
+        {
+            await DisableAsync();
+            throw new BiometricKeyInvalidatedException(exception);
         }
         finally
         {
             CryptographicOperations.ZeroMemory(plaintext);
         }
+    }
+
+    // Binds the encrypted payload to the metadata stored in plain text next to it,
+    // so swapping the email or version in the file is detected on decryption.
+    private static byte[] BuildAssociatedData(int version, string email) =>
+        Encoding.UTF8.GetBytes($"{version}|{email.ToLowerInvariant()}");
+
+    private BiometricVault? GetVault()
+    {
+        if (!isCacheLoaded)
+        {
+            cachedVault = LoadVault();
+            isCacheLoaded = true;
+        }
+        return cachedVault;
     }
 
     private static BiometricVault? LoadVault()
@@ -86,17 +129,62 @@ public class BiometricLoginService(IBiometricAuthenticator authenticator) : IBio
         try
         {
             BiometricVault? vault = JsonSerializer.Deserialize<BiometricVault>(File.ReadAllText(FilePath), JsonOptions);
-            return vault?.Version == CurrentVersion ? vault : null;
+            if (vault is null
+                || vault.Version != CurrentVersion
+                || string.IsNullOrWhiteSpace(vault.Email)
+                || string.IsNullOrWhiteSpace(vault.Data))
+            {
+                // Outdated (e.g. v1) or malformed file: its Hello key is gone/unusable, start over.
+                TryDelete(FilePath);
+                return null;
+            }
+            return vault;
         }
-        catch (Exception exception) when (exception is JsonException or IOException)
+        catch (JsonException)
+        {
+            TryDelete(FilePath);
+            return null;
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
             return null;
         }
     }
 
-    private static void SaveVault(BiometricVault vault)
+    private void SaveVault(BiometricVault vault)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(FilePath)!);
-        File.WriteAllText(FilePath, JsonSerializer.Serialize(vault, JsonOptions));
+        string tempPath = FilePath + ".tmp";
+        try
+        {
+            File.WriteAllText(tempPath, JsonSerializer.Serialize(vault, JsonOptions));
+            File.Move(tempPath, FilePath, overwrite: true);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            TryDelete(tempPath);
+            throw new BiometricException("Unable to save biometric sign-in data.", exception);
+        }
+        cachedVault = vault;
+        isCacheLoaded = true;
+    }
+
+    private void DeleteVaultFile()
+    {
+        cachedVault = null;
+        isCacheLoaded = true;
+        TryDelete(FilePath);
+    }
+
+    private static void TryDelete(string path)
+    {
+        try
+        {
+            File.Delete(path);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            // Best effort: an undecryptable leftover file is harmless.
+        }
     }
 }

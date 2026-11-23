@@ -147,7 +147,7 @@ public partial class MainViewModel : ViewModelBase
     private  async Task OnWindowOpened()
     {
         IsBiometricAvailable = await biometricLoginService.IsAvailableAsync();
-        IsBiometricEnabled = biometricLoginService.IsEnabled;
+        IsBiometricEnabled = biometricLoginService.IsEnabledFor(authService.CurrentEmail);
         await ListPasswords();
     }
 
@@ -171,7 +171,7 @@ public partial class MainViewModel : ViewModelBase
         }
         finally
         {
-            IsBiometricEnabled = biometricLoginService.IsEnabled;
+            IsBiometricEnabled = biometricLoginService.IsEnabledFor(authService.CurrentEmail);
         }
     }
 
@@ -191,15 +191,35 @@ public partial class MainViewModel : ViewModelBase
     
     private async Task EnableBiometric()
     {
-        UserRequest? credentials = authService.CurrentCredentials;
-        if (credentials is null)
+        string? email = authService.CurrentEmail;
+        if (email is null)
         {
             await dialogService.ShowMessage(
                 $"Sign in with your master password to turn on {BiometricDisplayName}.",
                 BiometricDisplayName, Icon.Info);
             return;
         }
-        await biometricLoginService.EnableAsync(credentials);
+
+        string? enrolledEmail = biometricLoginService.EnrolledEmail;
+        if (enrolledEmail is not null && !biometricLoginService.IsEnabledFor(email))
+        {
+            bool replace = await dialogService.Confirm(
+                $"{BiometricDisplayName} is already set up for {enrolledEmail}.\nReplace it with this account?",
+                BiometricDisplayName, Icon.Question);
+            if (!replace) return;
+        }
+
+        string? password = await dialogService.PromptMasterPassword(
+            $"Enter your master password to turn on {BiometricDisplayName}.", BiometricDisplayName);
+        if (password is null) return;
+
+        if (!await authService.VerifyMasterPasswordAsync(password))
+        {
+            await dialogService.ShowMessage("The master password is incorrect.", BiometricDisplayName, Icon.Error);
+            return;
+        }
+
+        await biometricLoginService.EnableAsync(new UserRequest(email, password));
     }
 
     private async Task DisableBiometric()
@@ -210,7 +230,7 @@ public partial class MainViewModel : ViewModelBase
         if (!confirmed) return;
         await biometricLoginService.DisableAsync();
     }
-
+    
     private ObservableCollection<PasswordControlViewModel> GetFilteredPasswords()
     {
         IList<PasswordControlViewModel> filtered = PasswordsFromDatabase;
