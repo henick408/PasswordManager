@@ -53,7 +53,8 @@
                 
                 <StackPanel>
                     <Label Content="MASTER PASSWORD"/>
-                    <controls:PasswordBox Classes.validationError="{Binding IsMasterPasswordError}"
+                    <controls:PasswordBox x:Name="MasterPasswordBox"
+                                          Classes.validationError="{Binding IsMasterPasswordError}"
                                           Password="{Binding MasterPassword, Mode=TwoWay}"
                                           TextPadding="8">
                         <controls:PasswordBox.KeyBindings>
@@ -61,6 +62,8 @@
                             <KeyBinding Gesture="Return" Command="{Binding LoginAttemptCommand}"/>
                         </controls:PasswordBox.KeyBindings>
                     </controls:PasswordBox>
+                    <controls:PasswordStrengthMeter Password="{Binding #MasterPasswordBox.Password}"
+                                                    IsVisible="{Binding IsRegister}"/>
                     <TextBlock Classes.validationError="{Binding IsMasterPasswordError}"
                                Text="{Binding MasterPasswordError}"/>
                 </StackPanel>

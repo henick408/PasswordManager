@@ -9,9 +9,29 @@ namespace PasswordManager.ViewModels;
 
 public partial class AddEditPasswordViewModel : ViewModelBase
 {
-    
+    /// <summary>Category assigned when the user does not choose one.</summary>
+    public const string DefaultCategory = "Other";
+
     [ObservableProperty]
     public partial PasswordEntry PasswordEntry { get; private set; }
+
+    /// <summary>
+    /// Edited name. Kept here rather than bound to <see cref="PasswordEntry"/> directly, so the validation
+    /// error can be cleared while typing; written back to the entry in <see cref="TryPrepareForSave"/>.
+    /// </summary>
+    [ObservableProperty]
+    public partial string Name { get; set; } = string.Empty;
+
+    partial void OnNameChanged(string value)
+    {
+        NameError = string.Empty;
+    }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsNameError))]
+    public partial string NameError { get; set; } = string.Empty;
+
+    public bool IsNameError => !string.IsNullOrWhiteSpace(NameError);
     
     [ObservableProperty]
     public partial IList<string> Categories { get; private set; }
@@ -59,12 +79,36 @@ public partial class AddEditPasswordViewModel : ViewModelBase
             Category = "Category",
             Notes = "Notes"
         };
+        Name = PasswordEntry.Name;
     }
     
     public AddEditPasswordViewModel(IList<string> categories, PasswordEntry? passwordEntry = null)
     {
         PasswordEntry = passwordEntry ?? new PasswordEntry();
+        Name = PasswordEntry.Name;
         Categories = categories;
+    }
+
+    /// <summary>
+    /// Validates the form and completes the entry before saving: the name is required (trimmed),
+    /// a missing category becomes <see cref="DefaultCategory"/>.
+    /// </summary>
+    /// <returns><c>true</c> when the entry can be saved; otherwise the errors are shown in the form.</returns>
+    public bool TryPrepareForSave()
+    {
+        string name = Name.Trim();
+        if (name.Length == 0)
+        {
+            NameError = "Enter a name.";
+            return false;
+        }
+
+        PasswordEntry.Name = name;
+        if (string.IsNullOrWhiteSpace(PasswordEntry.Category))
+        {
+            PasswordEntry.Category = DefaultCategory;
+        }
+        return true;
     }
     
     partial void OnIsLowercaseChanged(bool value) => OnSelectionChanged();
