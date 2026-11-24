@@ -42,14 +42,11 @@ public partial class PasswordControlViewModel : ViewModelBase
         }
     }
     
+    /// <summary>Copies the password; it is removed from the clipboard after 30 seconds.</summary>
     [RelayCommand]
     private async Task CopyPassword()
     {
-        IClipboard? clipboard = ClipboardHelper.GetClipboard();
-        if (clipboard is not null)
-        {
-            await clipboard.SetTextAsync(PasswordEntry.Password);
-        }
+        await ClipboardHelper.SetSensitiveTextAsync(PasswordEntry.Password);
     }
     
     [RelayCommand]

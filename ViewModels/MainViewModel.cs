@@ -5,6 +5,7 @@ using MsBox.Avalonia.Enums;
 using PasswordManager.CustomExceptions;
 using PasswordManager.Dto;
 using PasswordManager.Service;
+using PasswordManager.Utils;
 
 namespace PasswordManager.ViewModels;
 
@@ -181,9 +182,11 @@ public partial class MainViewModel : ViewModelBase
         SelectedCategory = null;
     }
 
+    /// <summary>Signs out, zeroes the vault key and removes a copied password from the clipboard.</summary>
     [RelayCommand]
-    private void SignOut()
+    private async Task SignOut()
     {
+        await ClipboardHelper.ClearIfOursAsync();
         authService.SignOut();
         SignedOut?.Invoke();
     }
