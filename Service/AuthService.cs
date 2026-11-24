@@ -6,6 +6,7 @@ using PasswordManager.Dto;
 using PasswordManager.Model;
 using PasswordManager.Repository;
 using PasswordManager.Service.Crypto;
+using PasswordManager.Utils;
 using Supabase.Gotrue;
 using Supabase.Gotrue.Exceptions;
 
@@ -27,6 +28,7 @@ public class AuthService(Supabase.Client supabase, UserSession userSession, User
     /// </summary>
     /// <param name="request">E-mail and master password.</param>
     /// <exception cref="SupabaseAuthException">Supabase rejected the registration.</exception>
+    /// <exception cref="ServerConnectionException">The server cannot be reached.</exception>
     public async Task SignUpAsync(UserRequest request)
     {
         using DerivedKeys keys = await MasterKeyDerivation.DeriveAsync(request.Email, request.Password);
@@ -38,7 +40,7 @@ public class AuthService(Supabase.Client supabase, UserSession userSession, User
         }
         catch (GotrueException exception)
         {
-            throw ToSupabaseAuthException(exception);
+            throw TranslateAuthException(exception);
         }
     }
 
@@ -48,6 +50,9 @@ public class AuthService(Supabase.Client supabase, UserSession userSession, User
     /// </summary>
     /// <param name="request">E-mail and master password.</param>
     /// <exception cref="SupabaseAuthException">Wrong credentials or another Supabase error.</exception>
+    /// <exception cref="ServerConnectionException">
+    /// The server cannot be reached (also while loading the vault key; the user is signed out again).
+    /// </exception>
     /// <exception cref="VaultUnlockException">
     /// Signed in, but the vault key cannot be loaded or unwrapped; the user is signed out again.
     /// </exception>
@@ -62,7 +67,7 @@ public class AuthService(Supabase.Client supabase, UserSession userSession, User
         }
         catch (GotrueException exception)
         {
-            throw ToSupabaseAuthException(exception);
+            throw TranslateAuthException(exception);
         }
 
         string? userId = supabase.Auth.CurrentUser?.Id;
@@ -84,6 +89,10 @@ public class AuthService(Supabase.Client supabase, UserSession userSession, User
         {
             // Authenticated but the vault cannot be opened: do not leave a half signed-in state.
             SignOut();
+            if (NetworkErrors.IsConnectionProblem(exception))
+            {
+                throw new ServerConnectionException(exception);
+            }
             throw exception as VaultUnlockException
                   ?? new VaultUnlockException("Unable to unlock the vault.", exception);
         }
@@ -181,8 +190,18 @@ public class AuthService(Supabase.Client supabase, UserSession userSession, User
     /// <summary>AAD of the wrapped vault key: binds it to its owner, so it cannot be moved to another account.</summary>
     private static byte[] VaultKeyAad(string userId) => Encoding.UTF8.GetBytes(VaultKeyAadPrefix + userId);
 
-    private static SupabaseAuthException ToSupabaseAuthException(GotrueException exception)
+    /// <summary>
+    /// Converts a GoTrue error: network failures become <see cref="ServerConnectionException"/>
+    /// (GoTrue reports them as a generic <see cref="GotrueException"/>), everything else
+    /// becomes <see cref="SupabaseAuthException"/> with the parsed error body.
+    /// </summary>
+    private static Exception TranslateAuthException(GotrueException exception)
     {
+        if (NetworkErrors.IsConnectionProblem(exception))
+        {
+            return new ServerConnectionException(exception);
+        }
+
         AuthError? error = null;
         try
         {
@@ -190,7 +209,7 @@ public class AuthService(Supabase.Client supabase, UserSession userSession, User
         }
         catch (JsonException)
         {
-            // Not a JSON error body (e.g. network failure).
+            // Not a JSON error body.
         }
         return new SupabaseAuthException(error ?? new AuthError(), exception.Reason);
     }
