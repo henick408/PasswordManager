@@ -162,8 +162,13 @@ public class WindowsHelloAuthenticator(ITopLevelProvider topLevelProvider) : IBi
     /// <summary>
     /// Checks that the key is protected by a TPM. Hello falls back to a software key on machines without
     /// a (usable) TPM; such a key is far easier to extract, so the user has to explicitly accept it.
-    /// Key attestation only succeeds for TPM-backed keys and does not prompt the user.
     /// </summary>
+    /// <remarks>
+    /// Key attestation proves that this particular key lives in a TPM, but it often fails on devices that
+    /// do have a TPM (e.g. firmware TPMs without an attestation identity key certificate, or Hello not
+    /// managed by Windows Hello for Business). In that case the presence of a ready TPM is checked instead:
+    /// Windows Hello stores its keys in the TPM whenever one is usable.
+    /// </remarks>
     /// <returns><c>true</c> when the key is TPM-backed or the user accepted the weaker protection.</returns>
     private static async Task<bool> ConfirmHardwareBackedAsync(KeyCredential credential,
         Func<string, Task<bool>> confirmWeakProtection)
@@ -171,19 +176,12 @@ public class WindowsHelloAuthenticator(ITopLevelProvider topLevelProvider) : IBi
         KeyCredentialAttestationResult attestation =
             await CallHelloAsync(() => credential.GetAttestationAsync().AsTask());
 
-        string? warning = attestation.Status switch
-        {
-            KeyCredentialAttestationStatus.Success => null,
-            KeyCredentialAttestationStatus.NotSupported =>
-                "Windows Hello on this device does not use a TPM security chip, so the key is not protected by hardware.",
-            KeyCredentialAttestationStatus.TemporaryFailure =>
-                "Unable to confirm right now that the Windows Hello key is protected by a TPM security chip.",
-            _ => $"Unable to verify that the Windows Hello key is protected by a TPM security chip ({attestation.Status})."
-        };
-        if (warning is null) return true;
+        if (attestation.Status == KeyCredentialAttestationStatus.Success) return true;
+        if (TpmDetector.IsTpmAvailable()) return true;
 
         return await confirmWeakProtection(
-            $"{warning}\nYour master password would be less protected on this device. Turn on Windows Hello anyway?");
+            "No TPM security chip was found on this device, so the Windows Hello key is not protected by hardware.\n" +
+            "Your master password would be less protected on this device. Turn on Windows Hello anyway?");
     }
 
     /// <summary>Wraps WinRT failures (COMException etc.) so callers only have to handle <see cref="BiometricException"/>.</summary>
