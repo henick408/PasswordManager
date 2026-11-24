@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using PasswordManager.Dto;
 using PasswordManager.Repository;
 using PasswordManager.Model;
@@ -7,12 +8,27 @@ namespace PasswordManager.Service;
 
 public class PasswordService(PasswordRepository passwordRepository, IEncryptionService encryptionService) : IPasswordService
 {
-    public async Task<IList<PasswordEntry>> GetPasswords()
+    /// <inheritdoc />
+    public async Task<PasswordList> GetPasswords()
     {
         IList<EncryptedPassword> encryptedPasswords = await passwordRepository.ListPasswords();
-        return encryptedPasswords
-            .Select(encryptionService.Decrypt)
-            .ToList();
+        List<PasswordEntry> entries = new(encryptedPasswords.Count);
+        int skippedCount = 0;
+
+        foreach (EncryptedPassword encryptedPassword in encryptedPasswords)
+        {
+            try
+            {
+                entries.Add(encryptionService.Decrypt(encryptedPassword));
+            }
+            catch (CryptographicException)
+            {
+                // Tampered, swapped between rows/users, corrupted or unsupported version.
+                skippedCount++;
+            }
+        }
+
+        return new PasswordList(entries, skippedCount);
     }
 
     public async Task<PasswordEntry> GetPassword(Guid id)

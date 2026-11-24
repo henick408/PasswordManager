@@ -45,7 +45,7 @@ W projekcie KDF realizuje trzy cele naraz:
 | Nazwa | Co to jest |
 |---|---|
 | **hasło główne** (master password) | Hasło wpisywane przez użytkownika. Istnieje tylko na urządzeniu, w pamięci, na czas wyprowadzania kluczy. |
-| **sól** (`salt`) | Dodatkowe dane dla Argon2id, dzięki którym to samo hasło u różnych użytkowników daje różne klucze. Tutaj: `SHA-256("PasswordManager.kdf.v1|" + email)`. |
+| **sól** (`salt`) | Dodatkowe dane dla Argon2id, dzięki którym to samo hasło u różnych użytkowników daje różne klucze. Tutaj: `SHA-256("PasswordManager.kdf.v1\|" + email)`. |
 | **Argon2id** | Algorytm KDF (zwycięzca Password Hashing Competition, RFC 9106). Wersja *id* łączy odporność na ataki GPU (Argon2d) i na ataki kanałem bocznym (Argon2i). |
 | **`masterKey`** | 32-bajtowy wynik Argon2id. Używany tylko do wyprowadzenia dwóch kolejnych kluczy, potem natychmiast zerowany. |
 | **HKDF** | HMAC-based Key Derivation Function (RFC 5869). Tutaj używany jest tylko etap *Expand*: z jednego silnego klucza robi kilka niezależnych, rozróżnianych parametrem `info`. |
