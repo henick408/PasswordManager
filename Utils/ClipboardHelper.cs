@@ -16,6 +16,9 @@ public static class ClipboardHelper
     /// <summary>Cancels the pending clear when a newer secret is copied.</summary>
     private static CancellationTokenSource? _clearCancellation;
 
+    /// <summary><c>true</c> while a secret copied by this app may still be in the clipboard.</summary>
+    public static bool HasSensitiveText => _sensitiveText is not null;
+
     /// <summary>Clipboard of the main window, or <c>null</c> when it is not available (e.g. in the designer).</summary>
     public static IClipboard? GetClipboard()
     {

@@ -62,6 +62,7 @@ public static class ServiceExtensions
         services.AddTransient<IPasswordService, PasswordService>();
         services.AddTransient<IDialogService, DialogService>();
         services.AddSingleton<IBiometricLoginService, BiometricLoginService>();
+        services.AddSingleton<AutoLockService>();
     }
 
     public static void AddPlatformServices(this IServiceCollection services)
@@ -73,6 +74,13 @@ public static class ServiceExtensions
         else
 #endif
             services.AddSingleton<IBiometricAuthenticator, UnsupportedBiometricAuthenticator>();
+
+#if WINDOWS
+        if (OperatingSystem.IsWindows())
+            services.AddSingleton<ISessionLockNotifier, WindowsSessionLockNotifier>();
+        else
+#endif
+            services.AddSingleton<ISessionLockNotifier, NoSessionLockNotifier>();
     }
 
     public static void AddRepositories(this IServiceCollection services)
