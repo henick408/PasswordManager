@@ -29,7 +29,7 @@
             <Grid RowDefinitions="Auto,*,Auto">
 
                 <StackPanel Grid.Row="0">
-                    <TextBlock Text="H KeyVault"
+                    <TextBlock Text="🔐 KeyVault"
                                Padding="10 12"
                                FontSize="20"
                                FontWeight="SemiBold"/>
@@ -37,7 +37,7 @@
                     <StackPanel>
                         <Label Content="VAULT"
                                Padding="10 8"/>
-                        <Button Content="H All Passwords"
+                        <Button Content="🗂️ All Passwords"
                                 HorizontalAlignment="Stretch"
                                 FontSize="12"
                                 Padding="10 10"
@@ -81,8 +81,8 @@
                                   IsVisible="{Binding IsBiometricAvailable}"
                                   FontSize="12"
                                   Margin="10 0"/>
-                    <Button Content="H Settings"/>
-                    <Button Content="H Logout"
+                    <Button Content="⚙️ Settings"/>
+                    <Button Content="🚪 Logout"
                             Command="{Binding SignOutCommand}"/>
                 </StackPanel>
                 
@@ -96,23 +96,47 @@
                       Background="LightGray" ColumnDefinitions="*,Auto">
 
                     <Border Grid.Column="0"
-                            Margin=" 8 16"
+                            Classes="searchBox"
+                            Margin="8 16"
                             CornerRadius="8"
-                            Background="#000050">
+                            BorderThickness="1"
+                            BorderBrush="#C8C8C8"
+                            Background="White">
+                        <Border.Styles>
+                            <Style Selector="Border.searchBox:focus-within">
+                                <Setter Property="BorderBrush" Value="#1E4AFF"/>
+                            </Style>
+                            <!-- Keep the inner TextBox flat: Fluent changes its background and border on hover and focus. -->
+                            <Style Selector="TextBox.search /template/ Border#PART_BorderElement">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                            </Style>
+                            <Style Selector="TextBox.search:pointerover /template/ Border#PART_BorderElement">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                            </Style>
+                            <Style Selector="TextBox.search:focus /template/ Border#PART_BorderElement">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                            </Style>
+                        </Border.Styles>
                         <Grid ColumnDefinitions="36,*">
                             <TextBlock Grid.Column="0"
-                                       Text="H"
+                                       Text="🔍"
                                        VerticalAlignment="Center"
                                        HorizontalAlignment="Center"
-                                       FontSize="20"
-                                       Foreground="DarkGray"/>
-                            <TextBox Grid.Column="1" 
+                                       FontSize="16"
+                                       Foreground="#707070"/>
+                            <TextBox Grid.Column="1"
+                                     Classes="search"
                                      BorderThickness="0"
-                                     Foreground="DarkGray"
+                                     Foreground="#202020"
                                      Text="{Binding PasswordSearch, UpdateSourceTrigger=PropertyChanged}"
+                                     PlaceholderText="Search passwords…"
+                                     PlaceholderForeground="#909090"
                                      VerticalContentAlignment="Center"
-                                     FontSize="18"
-                                     Padding="16 0 0 0"
+                                     FontSize="16"
+                                     Padding="4 0 0 0"
                                      Background="Transparent"/>
                         </Grid>
                     </Border>
@@ -175,17 +199,19 @@
                                FontSize="22"
                                FontWeight="Bold"
                                Margin="0 0 0 20"/>
-                    <Grid ColumnDefinitions="*,*">
+                    <Grid ColumnDefinitions="*,Auto">
 
                         <Border Grid.Column="0"
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Center"
                                 Background="#FF9370DB"
                                 Padding="8"
+                                Margin="0 0 8 0"
                                 CornerRadius="4">
                             <TextBlock Text="{Binding SelectedPassword?.PasswordEntry.Category}"
                                        VerticalAlignment="Center"
                                        FontSize="16"
+                                       TextTrimming="CharacterEllipsis"
                                        HorizontalAlignment="Left"/>
                         </Border>
                         <StackPanel Grid.Column="1"
@@ -199,10 +225,10 @@
                                 </Style>
                             </StackPanel.Styles>
                             
-                            <Button Content="H Edit"
+                            <Button Content="✏️ Edit"
                                     Margin="0 0 4 0"
                                     Command="{Binding UpdatePasswordCommand}"/>
-                            <Button Content="H Delete"
+                            <Button Content="🗑️ Delete"
                                     Command="{Binding DeletePasswordCommand}"/>
                         </StackPanel>
                     </Grid>
@@ -224,17 +250,17 @@
                     </StackPanel.Styles>
                     
                     <StackPanel>
-                        <Label Content="H URL"/>
+                        <Label Content="🌐 URL"/>
                         <TextBox Text="{Binding SelectedPassword?.PasswordEntry.Url}"/>
                     </StackPanel>
                     
                     <StackPanel>
-                        <Label Content="H USERNAME"/>
+                        <Label Content="👤 USERNAME"/>
                         <TextBox Text="{Binding SelectedPassword?.PasswordEntry.Username}"/>
                     </StackPanel>
                     
                     <StackPanel>
-                        <Label Content="H PASSWORD"/>
+                        <Label Content="🔑 PASSWORD"/>
                         <controls:PasswordBox Name="PasswordTextBox"
                                  Password="{Binding SelectedPassword?.PasswordEntry.Password, Mode=TwoWay}"
                                  Padding="0"
@@ -242,7 +268,7 @@
                     </StackPanel>
                     
                     <StackPanel>
-                        <Label Content="H NOTES"/>
+                        <Label Content="📝 NOTES"/>
                         <TextBox Text="{Binding SelectedPassword?.PasswordEntry.Notes}"
                                  Height="200"
                                  AcceptsReturn="True"
