@@ -5,6 +5,7 @@ using MsBox.Avalonia.Enums;
 using PasswordManager.CustomExceptions;
 using PasswordManager.Dto;
 using PasswordManager.Service;
+using PasswordManager.Utils;
 
 namespace PasswordManager.ViewModels;
 
@@ -181,9 +182,11 @@ public partial class MainViewModel : ViewModelBase
         SelectedCategory = null;
     }
 
+    /// <summary>Signs out, zeroes the vault key and removes a copied password from the clipboard.</summary>
     [RelayCommand]
-    private void SignOut()
+    private async Task SignOut()
     {
+        await ClipboardHelper.ClearIfOursAsync();
         authService.SignOut();
         SignedOut?.Invoke();
     }
@@ -248,12 +251,29 @@ public partial class MainViewModel : ViewModelBase
         return new ObservableCollection<PasswordControlViewModel>(filtered);
     }
     
+    /// <summary>Number of undecryptable entries the user was last told about (avoids repeating the warning on every refresh).</summary>
+    private int _reportedSkippedCount;
+
+    /// <summary>
+    /// Reloads the list. Entries that fail to decrypt are left out, and the user is warned
+    /// when their number changes.
+    /// </summary>
     private async Task ListPasswords()
     {
-        IList<PasswordEntry> passwordsEntries = await passwordService.GetPasswords();
+        PasswordList passwordList = await passwordService.GetPasswords();
         PasswordsFromDatabase = new ObservableCollection<PasswordControlViewModel>(
-            passwordsEntries.Select(entry => new PasswordControlViewModel(entry))
+            passwordList.Entries.Select(entry => new PasswordControlViewModel(entry))
         );
+
+        if (passwordList.SkippedCount == _reportedSkippedCount) return;
+        _reportedSkippedCount = passwordList.SkippedCount;
+        if (passwordList.SkippedCount == 0) return;
+
+        string entries = passwordList.SkippedCount == 1 ? "1 entry" : $"{passwordList.SkippedCount} entries";
+        await dialogService.ShowMessage(
+            $"{entries} could not be decrypted and {(passwordList.SkippedCount == 1 ? "is" : "are")} not shown.\n"
+            + "The data may have been modified or corrupted on the server.",
+            "Some entries are hidden", Icon.Warning);
     }
     
 }

@@ -6,8 +6,12 @@ namespace PasswordManager.Dto;
 
 public class PasswordEntry
 {
+    /// <summary>
+    /// Entry id (= password.id). Not part of the encrypted JSON; it is bound to the ciphertext
+    /// through the AAD instead. <see cref="Guid.Empty"/> means a new, not yet saved entry.
+    /// </summary>
     [JsonIgnore]
-    public long Id { get; set; }
+    public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Url { get; set; } = string.Empty;
     public string Username { get; set; } = string.Empty;

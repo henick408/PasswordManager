@@ -99,14 +99,11 @@ public partial class AddEditPasswordViewModel : ViewModelBase
                + (IsSpecialSigns ? 1 : 0);
     }
 
+    /// <summary>Copies the generated password; it is removed from the clipboard after 30 seconds.</summary>
     [RelayCommand]
     private async Task CopyGeneratedPasswordToClipboard()
     {
-        IClipboard? clipboard = ClipboardHelper.GetClipboard();
-        if (clipboard is not null)
-        {
-            await clipboard.SetTextAsync(GeneratedPassword);
-        }
+        await ClipboardHelper.SetSensitiveTextAsync(GeneratedPassword);
     }
 
     [RelayCommand]
